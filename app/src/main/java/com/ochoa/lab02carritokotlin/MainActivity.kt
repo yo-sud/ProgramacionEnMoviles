@@ -16,6 +16,7 @@ import com.ochoa.lab02carritokotlin.ui.theme.Lab02CarritoKotlinTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        main()
         enableEdgeToEdge()
         setContent {
             Lab02CarritoKotlinTheme {
