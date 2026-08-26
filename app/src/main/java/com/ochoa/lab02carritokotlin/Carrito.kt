@@ -1,10 +1,20 @@
 package com.ochoa.lab02carritokotlin
 
+import java.util.Scanner
+
 data class Producto(
     val nombre: String,
     val precio: Double,
     var cantidad: Int,
 )
+
+fun buscarProducto(productos: List<Producto>, nombre: String): Producto? {
+    return productos.find { it.nombre.equals(nombre, ignoreCase = true) }
+}
+
+fun eliminarProducto(productos: MutableList<Producto>, nombre: String): Boolean {
+    return productos.removeIf { it.nombre.equals(nombre, ignoreCase = true) }
+}
 
 fun mostrarDetalle(productos: List<Producto>) {
     println("-----DETALLE DEL CARRITO-----")
@@ -51,14 +61,28 @@ fun main() {
     println(" CARRITO DE COMPRAS - TIENDA TECSUP ")
     println("====================================")
 
-    val nombreCliente = "Yamil Ochoa"
+    val scanner = Scanner(System.`in`)
+    print("Cliente: ")
+    val nombreCliente = scanner.nextLine()
+
     val carrito = mutableListOf<Producto>()
     println("Cliente: $nombreCliente")
 
-    carrito.add(Producto("Laptop HP", 2500.0, 1))
-    carrito.add(Producto("Mouse Logitech", 45.5, 2))
-    carrito.add(Producto("Monitor Xiaomi 45",1500.0,4 ))
-    carrito.add(Producto("Arduino UNO ", 50.0,4))
+    println("\nIngrese los productos (escriba 'fin' en nombre para terminar):")
+    while (true) {
+        print("Nombre: ")
+        val nombre = scanner.nextLine()
+        if (nombre.trim().lowercase() == "fin") break
+
+        print("Precio: ")
+        val precio = scanner.nextDouble()
+
+        print("Cantidad: ")
+        val cantidad = scanner.nextInt()
+        scanner.nextLine()
+
+        carrito.add(Producto(nombre, precio, cantidad))
+    }
     println()
 
     for (producto in carrito) {
@@ -95,5 +119,38 @@ fun main() {
     val totalConDescuento = total - descuento
     println(String.format("%-26s: S/ %.2f", "TOTAL CON DESCUENTO", totalConDescuento))
 
+    println("\n--- OPCIONES ---")
+    print("1. Buscar producto (escribe nombre o 'fin' para salir): ")
+    val buscarNombre = scanner.nextLine()
+    if (buscarNombre.trim().lowercase() != "fin" && buscarNombre.isNotEmpty()) {
+        val encontrado = buscarProducto(carrito, buscarNombre)
+        if (encontrado != null) {
+            println("Producto encontrado: ${encontrado.nombre} (Precio: S/${encontrado.precio}, Cantidad: ${encontrado.cantidad})")
+        } else {
+            println("Producto no encontrado en el carrito.")
+        }
+    }
+
+    print("\n2. Eliminar producto (escribe nombre o 'fin' para salir): ")
+    val eliminarNombre = scanner.nextLine()
+    if (eliminarNombre.trim().lowercase() != "fin" && eliminarNombre.isNotEmpty()) {
+        val eliminado = eliminarProducto(carrito, eliminarNombre)
+        if (eliminado) {
+            println("Producto eliminado. Nuevo estado del carrito:")
+            mostrarDetalle(carrito)
+
+            println("Cantidad de productos: ${carrito.size}")
+            val nuevoSubtotal = calcularSubtotal(carrito)
+            println(String.format("%-9s: S/ %.2f", "Subtotal", nuevoSubtotal))
+            val nuevoIGV = calcularIGV(nuevoSubtotal)
+            val nuevoTotal = calcularTotal(nuevoSubtotal, nuevoIGV)
+            println("------------------------------")
+        } else {
+            println("No se encontró el producto para eliminar.")
+        }
+    }
+
     println("¡Gracias por su compra, $nombreCliente!")
+
+    scanner.close()
 }
