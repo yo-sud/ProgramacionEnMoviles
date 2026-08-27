@@ -1,2 +1,1 @@
-#Rama para contenido con IA
-
+#Contenido generado con IA - Semana 02
