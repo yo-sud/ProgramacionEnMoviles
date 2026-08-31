@@ -34,4 +34,7 @@ fun main() {
 
     println("\n--- DATOS INSERTADOS ---")
     println(String.format("Producto: %s | Precio: S/ %.2f | Cantidad: %d | Cuotas: %d", nombre, precio, cantidad, cuotas))
+
+    val montoInicial = precio * cantidad
+    println(String.format("Monto Inicial: S/ %.2f", montoInicial))
 }
