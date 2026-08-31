@@ -1,5 +1,7 @@
 package com.ochoa.myapplication
 import java.util.Scanner
+import java.util.Calendar
+import java.text.SimpleDateFormat
 
 fun main() {
     val scanner = Scanner(System.`in`)
@@ -53,4 +55,21 @@ fun main() {
     println(String.format("Interés (%d%%): S/ %.2f", (porcentajeInteres * 100).toInt(), interes))
     println(String.format("Monto a Pagar: S/ %.2f", montoTotal))
     println(String.format("Pago Mensual: S/ %.2f", pagoMensual))
+
+    println("\n--- CALENDARIO DE PAGOS ---")
+    var saldoRestante = montoTotal
+    val calendar = Calendar.getInstance()
+    val formatoFecha = SimpleDateFormat("dd/MM/yyyy")
+
+    var i = 1
+    do {
+        calendar.add(Calendar.MONTH, 1)
+        val fechaPago = formatoFecha.format(calendar.time)
+        saldoRestante -= pagoMensual
+        if (saldoRestante < 0.01) saldoRestante = 0.0
+
+        println(String.format("Cuota %d (%s): S/ %.2f | Saldo restante: S/ %.2f",
+            i, fechaPago, pagoMensual, saldoRestante))
+        i++
+    } while (i <= cuotas)
 }
