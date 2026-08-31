@@ -44,6 +44,13 @@ fun main() {
     }
 
     val interes = montoInicial * porcentajeInteres
+    val montoTotal = montoInicial + interes
+    val pagoMensual = montoTotal / cuotas
+
+    println("\n--- RESUMEN DE COMPRA ---")
+    println(String.format("Producto: %s", nombre))
     println(String.format("Monto Inicial: S/ %.2f", montoInicial))
     println(String.format("Interés (%d%%): S/ %.2f", (porcentajeInteres * 100).toInt(), interes))
+    println(String.format("Monto a Pagar: S/ %.2f", montoTotal))
+    println(String.format("Pago Mensual: S/ %.2f", pagoMensual))
 }
