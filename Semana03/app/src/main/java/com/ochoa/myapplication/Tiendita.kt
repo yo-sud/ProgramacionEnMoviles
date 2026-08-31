@@ -36,5 +36,14 @@ fun main() {
     println(String.format("Producto: %s | Precio: S/ %.2f | Cantidad: %d | Cuotas: %d", nombre, precio, cantidad, cuotas))
 
     val montoInicial = precio * cantidad
+
+    val porcentajeInteres = when (cuotas) {
+        6 -> 0.20
+        12 -> 0.40
+        else -> 0.60
+    }
+
+    val interes = montoInicial * porcentajeInteres
     println(String.format("Monto Inicial: S/ %.2f", montoInicial))
+    println(String.format("Interés (%d%%): S/ %.2f", (porcentajeInteres * 100).toInt(), interes))
 }
