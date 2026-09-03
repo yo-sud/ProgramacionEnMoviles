@@ -4,9 +4,9 @@ Estudiante: Yamil Aaron Ochoa Quispe
 
 Descripción: En este proyecto sentamos las bases de una aplicacion simple, incorporando una interfaz intuitiva con el uso de los controladores que nos permiten agregar texto, botones, funciones, y muchas cosas que vuelven a la aplicacion amigable de ver y de usar
 
-![Captura de pantalla 2026-09-03 170228.png](../../../../../Pictures/Screenshots/Captura%20de%20pantalla%202026-09-03%20170228.png)
+<img width="392" height="727" alt="image" src="https://github.com/user-attachments/assets/8456d714-b31a-4c0e-b7e0-a13e99bf87dd" />
 
-![Captura de pantalla 2026-09-03 170759.png](../../../../../Pictures/Screenshots/Captura%20de%20pantalla%202026-09-03%20170759.png)
+<img width="386" height="727" alt="image" src="https://github.com/user-attachments/assets/d66e238f-c37b-422e-ac67-eaa870ffaab9" />
 
 ¿qué pasaría si declaras las variables de los campos SIN remember?
 Los valores de nombre, precio o cantidad se reiniciarán a un string vacío, ya que se va a redibujar la pantalla nuevamente.
