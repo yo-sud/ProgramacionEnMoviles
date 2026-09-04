@@ -1,11 +1,19 @@
 package com.ochoa.lab02carritokotlin
 
-import java.util.Scanner
+import kotlin.math.roundToInt
 
 data class Producto(
     val nombre: String,
     val precio: Double,
-    var cantidad: Int,
+    var cantidad: Int
+)
+
+data class ResumenCuenta(
+    val subtotal: Double,
+    val igv: Double,
+    val total: Double,
+    val descuento: Double,
+    val totalFinal: Double
 )
 
 fun buscarProducto(productos: List<Producto>, nombre: String): Producto? {
@@ -17,42 +25,59 @@ fun eliminarProducto(productos: MutableList<Producto>, nombre: String): Boolean 
 }
 
 fun mostrarDetalle(productos: List<Producto>) {
-    println("-----DETALLE DEL CARRITO-----")
-    var i = 1
-    for (p in productos){
-        val importe = p.precio*p.cantidad
-        println(String.format("%d. %-20s x%d S/ %8.2f",
-            i, p.nombre, p.cantidad, importe))
-        i++
+    println("\n----- DETALLE DEL CARRITO -----")
+    if (productos.isEmpty()) {
+        println("El carrito está vacío.")
+    } else {
+        var i = 1
+        for (p in productos) {
+            val importe = p.precio * p.cantidad
+            println("${i++}. ${p.nombre.padEnd(20)} x${p.cantidad}  S/ ${String.format("%.2f", importe)}")
+        }
     }
-    println("------------------------------")
-}
-fun calcularSubtotal(productos: List<Producto>): Double {
-    var subtotal = 0.0
-    for (p in productos) {
-        subtotal += p.precio*p.cantidad
-
-    }
-    return subtotal
+    println("--------------------------------")
 }
 
-fun calcularIGV(subtotal: Double): Double {
+fun mostrarResumen(resumen: ResumenCuenta) {
+    println("\n----- RESUMEN DE COMPRA -----")
+    println("Subtotal : S/ ${String.format("%.2f", resumen.subtotal)}")
+    println("IGV (18%) : S/ ${String.format("%.2f", resumen.igv)}")
+    println("Descuento : S/ ${String.format("%.2f", resumen.descuento)}")
+    println("TOTAL     : S/ ${String.format("%.2f", resumen.totalFinal)}")
+    println("----------------------------")
+}
+
+fun calcularResumen(productos: List<Producto>): ResumenCuenta {
+    val subtotal = productos.sumOf { it.precio * it.cantidad }
     val igv = subtotal * 0.18
-    println(String.format("%-9s: S/ %.2f","IGV (18%)", igv))
-    return igv
+    val totalAntesDescuento = subtotal + igv
+
+    val descuento = when {
+        totalAntesDescuento > 5000 -> totalAntesDescuento * 0.10
+        totalAntesDescuento > 3000 -> totalAntesDescuento * 0.05
+        else -> 0.0
+    }
+
+    val totalFinal = totalAntesDescuento - descuento
+
+    return ResumenCuenta(subtotal, igv, totalAntesDescuento, descuento, totalFinal)
 }
 
-fun calcularTotal(subtotal: Double, igv: Double): Double {
-    val total = subtotal + igv
-    println(String.format("%-9s: S/ %.2f", "TOTAL",total))
-    return total
+fun leerNumeroEntero(mensaje: String): Int? {
+    print(mensaje)
+    return try {
+        readLine()?.trim()?.toIntOrNull()
+    } catch (e: Exception) {
+        null
+    }
 }
 
-fun calcularDescuento(total: Double): Double {
-    return when {
-        total > 5000-> total * 0.10
-        total > 3000-> total * 0.05
-        else-> 0.0
+fun leerNumeroDouble(mensaje: String): Double? {
+    print(mensaje)
+    return try {
+        readLine()?.trim()?.toDoubleOrNull()
+    } catch (e: Exception) {
+        null
     }
 }
 
@@ -61,96 +86,87 @@ fun main() {
     println(" CARRITO DE COMPRAS - TIENDA TECSUP ")
     println("====================================")
 
-    val scanner = Scanner(System.`in`)
     print("Cliente: ")
-    val nombreCliente = scanner.nextLine()
+    val nombreCliente = readLine()?.trim() ?: "Desconocido"
+    println("Bienvenido, $nombreCliente\n")
 
     val carrito = mutableListOf<Producto>()
-    println("Cliente: $nombreCliente")
 
-    println("\nIngrese los productos (escriba 'fin' en nombre para terminar):")
+    println("Ingrese los productos (Escriba 'FIN' en nombre para terminar):")
     while (true) {
-        print("Nombre: ")
-        val nombre = scanner.nextLine()
-        if (nombre.trim().lowercase() == "fin") break
+        print("Nombre del producto: ")
+        val input = readLine()?.trim()
 
-        print("Precio: ")
-        val precio = scanner.nextDouble()
+        if (input.isNullOrBlank() || input.lowercase() == "fin") break
 
-        print("Cantidad: ")
-        val cantidad = scanner.nextInt()
-        scanner.nextLine()
-
-        carrito.add(Producto(nombre, precio, cantidad))
-    }
-    println()
-
-    for (producto in carrito) {
-        println("Producto agregado: ${producto.nombre}")
-    }
-    println()
-    mostrarDetalle(carrito)
-    println()
-    println("Cantidad de productos: ${carrito.size}")
-    println()
-
-    val subtotal = calcularSubtotal(carrito)
-    println(String.format("%-9s: S/ %.2f", "Subtotal", subtotal))
-
-    val igv = calcularIGV(subtotal)
-    val total = calcularTotal(subtotal, igv)
-
-    val masCaro = carrito.maxByOrNull { it.precio }
-    if (masCaro != null) {
-        println("Producto mas caro: ${masCaro.nombre} " +
-                String.format("(S/ %.2f)", masCaro.precio))
-    }
-
-    val descuento = calcularDescuento(total)
-    val porcentajeTexto = when {
-        total > 5000 -> "10% por compra mayor a S/ 5000"
-        total > 3000 -> "5% por compra mayor a S/ 3000"
-        else -> "0%"
-    }
-    if (descuento > 0) {
-        println("Descuento aplicado: $porcentajeTexto")
-    }
-
-    val totalConDescuento = total - descuento
-    println(String.format("%-26s: S/ %.2f", "TOTAL CON DESCUENTO", totalConDescuento))
-
-    println("\n--- OPCIONES ---")
-    print("1. Buscar producto (escribe nombre o 'fin' para salir): ")
-    val buscarNombre = scanner.nextLine()
-    if (buscarNombre.trim().lowercase() != "fin" && buscarNombre.isNotEmpty()) {
-        val encontrado = buscarProducto(carrito, buscarNombre)
-        if (encontrado != null) {
-            println("Producto encontrado: ${encontrado.nombre} (Precio: S/${encontrado.precio}, Cantidad: ${encontrado.cantidad})")
-        } else {
-            println("Producto no encontrado en el carrito.")
+        val precio = leerNumeroDouble("Precio unitario (S/): ")
+        if (precio == null || precio < 0) {
+            println(">> Error: Ingrese un precio válido y positivo.\n")
+            continue
         }
-    }
 
-    print("\n2. Eliminar producto (escribe nombre o 'fin' para salir): ")
-    val eliminarNombre = scanner.nextLine()
-    if (eliminarNombre.trim().lowercase() != "fin" && eliminarNombre.isNotEmpty()) {
-        val eliminado = eliminarProducto(carrito, eliminarNombre)
-        if (eliminado) {
-            println("Producto eliminado. Nuevo estado del carrito:")
-            mostrarDetalle(carrito)
-
-            println("Cantidad de productos: ${carrito.size}")
-            val nuevoSubtotal = calcularSubtotal(carrito)
-            println(String.format("%-9s: S/ %.2f", "Subtotal", nuevoSubtotal))
-            val nuevoIGV = calcularIGV(nuevoSubtotal)
-            val nuevoTotal = calcularTotal(nuevoSubtotal, nuevoIGV)
-            println("------------------------------")
-        } else {
-            println("No se encontró el producto para eliminar.")
+        val cantidad = leerNumeroEntero("Cantidad: ")
+        if (cantidad == null || cantidad <= 0) {
+            println(">> Error: Ingrese una cantidad válida mayor a 0.\n")
+            continue
         }
+
+        carrito.add(Producto(input, precio, cantidad))
+        println(">> Producto agregado correctamente.")
     }
 
-    println("¡Gracias por su compra, $nombreCliente!")
+    if (carrito.isNotEmpty()) {
+        mostrarDetalle(carrito)
 
-    scanner.close()
+        val productoMasCaro = carrito.maxByOrNull { it.precio }
+        if (productoMasCaro != null) {
+            println("\nProducto más caro: ${productoMasCaro.nombre} (S/ ${String.format("%.2f", productoMasCaro.precio)})")
+        }
+
+        println("\nOpciones disponibles:")
+        println("1. Buscar un producto")
+        println("2. Eliminar un producto")
+        println("3. Ver resumen de compra")
+        print("Seleccione una opción: ")
+
+        val opcion = readLine()?.trim()
+
+        when (opcion) {
+            "1" -> {
+                print("\n¿Qué producto desea buscar? (Escriba 'VOLVER' para regresar): ")
+                val buscar = readLine()?.trim()
+                if (!buscar.isNullOrBlank() && buscar.lowercase() != "volver") {
+                    val encontrado = buscarProducto(carrito, buscar)
+                    if (encontrado != null) {
+                        println(">> Encontrado: ${encontrado.nombre} | Precio: S/${encontrado.precio} | Cantidad: ${encontrado.cantidad}")
+                    } else {
+                        println(">> No se encontró el producto en el carrito.")
+                    }
+                }
+            }
+            "2" -> {
+                print("\n¿Qué producto desea eliminar? (Escriba 'VOLVER' para regresar): ")
+                val eliminar = readLine()?.trim()
+                if (!eliminar.isNullOrBlank() && eliminar.lowercase() != "volver") {
+                    if (eliminarProducto(carrito, eliminar)) {
+                        println(">> Producto eliminado. Actualizando detalle...")
+                        mostrarDetalle(carrito)
+                    } else {
+                        println(">> No se encontró el producto para eliminar.")
+                    }
+                }
+            }
+            "3" -> {
+                val resumen = calcularResumen(carrito)
+                mostrarResumen(resumen)
+            }
+            else -> {
+                println("Opción no válida.")
+            }
+        }
+    } else {
+        println("No se agregaron productos al carrito.")
+    }
+
+    println("\n¡Gracias por su compra, $nombreCliente!")
 }
