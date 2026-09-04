@@ -95,12 +95,12 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(26.dp))
 
         Button(
             onClick = {
                 if (nombre.isBlank() || precio.isBlank() || cantidad.isBlank()) {
-                    mensajeError = "Error: Todos los campos son obligatorios"
+                    mensajeError = "¡Se deben llenar todos los campos son obligatorios!"
                     mostrarResumen = false
                 } else {
                     mensajeError = ""
@@ -127,7 +127,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
                 containerColor = MaterialTheme.colorScheme.secondary
             )
         ) {
-            Text("VACIAR FORMULARIO")
+            Text("Vaciar Formulario")
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -138,7 +138,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
                 color = Color.Red,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 18.dp)
             )
         }
 
@@ -167,7 +167,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
             Text(
                 text = "✓ Producto registrado correctamente",
