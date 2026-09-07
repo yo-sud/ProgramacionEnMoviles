@@ -4,12 +4,18 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -25,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 
 @Composable
 fun Tarea03(modifier: Modifier = Modifier) {
@@ -37,11 +44,16 @@ fun Tarea03(modifier: Modifier = Modifier) {
     var confirmado by remember { mutableStateOf(false) }
     var calculado by remember { mutableStateOf(false) }
 
-    Column(modifier = modifier.padding(16.dp)) {
-        CursoItem("Fundamentos de Programación", "(20%)", nota1) { nota1 = it }
-        CursoItem("Programación Orientada a Objetos", "(25%)", nota2) { nota2 = it }
-        CursoItem("Programación en Móviles", "(30%)", nota3) { nota3 = it }
-        CursoItem("Base de Datos", "(25%)", nota4) { nota4 = it }
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        CursoItem("Fundamentos de Programación", "(20%)", nota1) { nota1 = it; calculado = false }
+        CursoItem("Programación Orientada a Objetos", "(25%)", nota2) { nota2 = it; calculado = false }
+        CursoItem("Programación en Móviles", "(30%)", nota3) { nota3 = it; calculado = false }
+        CursoItem("Base de Datos", "(25%)", nota4) { nota4 = it; calculado = false }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -75,6 +87,40 @@ fun Tarea03(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Calcular Promedio")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (calculado) {
+            val promedioPonderado = (nota1 * 0.20f) + (nota2 * 0.25f) + (nota3 * 0.30f) + (nota4 * 0.25f)
+            val promedioFinal = if (redondear) promedioPonderado.roundToInt().toFloat() else promedioPonderado
+            val esAprobado = promedioFinal >= 10.5f
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (esAprobado) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer
+                )
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "Promedio Final:",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = if (redondear) "${promedioFinal.toInt()}" else String.format("%.2f", promedioFinal),
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = if (esAprobado) "✓ APROBADO" else "✗ DESAPROBADO",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = if (esAprobado) Color(0xFF2E7D32) else MaterialTheme.colorScheme.error
+                    )
+                }
+            }
         }
     }
 }
