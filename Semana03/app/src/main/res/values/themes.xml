@@ -2,4 +2,6 @@
 <resources>
 
     <style name="Theme.Lab03RegistroProducto" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.Tarea03" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>
