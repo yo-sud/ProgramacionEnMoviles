@@ -159,7 +159,33 @@ fun Tarea03(modifier: Modifier = Modifier) {
             if (calculado) {
                 val promedioPonderado = (nota1 * 0.20f) + (nota2 * 0.25f) + (nota3 * 0.30f) + (nota4 * 0.25f)
                 val promedioFinal = if (redondear) promedioPonderado.roundToInt().toFloat() else promedioPonderado
-                val esAprobado = promedioFinal >= 10.5f
+
+                val observacion: String
+                val colorChipFondo: Color
+                val colorChipTexto: Color
+
+                when {
+                    promedioFinal >= 17f -> {
+                        observacion = "EXCELENTE"
+                        colorChipFondo = Color(0xFFA5D6A7)
+                        colorChipTexto = Color(0xFF1B5E20)
+                    }
+                    promedioFinal >= 13f -> {
+                        observacion = "APROBADO"
+                        colorChipFondo = Color(0xFFE8F5E9)
+                        colorChipTexto = Color(0xFF2E7D32)
+                    }
+                    promedioFinal >= 10f -> {
+                        observacion = "EN RECUPERACIÓN"
+                        colorChipFondo = Color(0xFFFFF3CD)
+                        colorChipTexto = Color(0xFFB07800)
+                    }
+                    else -> {
+                        observacion = "DESAPROBADO"
+                        colorChipFondo = Color(0xFFFFEBEE)
+                        colorChipTexto = Color(0xFFC62828)
+                    }
+                }
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -191,12 +217,12 @@ fun Tarea03(modifier: Modifier = Modifier) {
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         Surface(
-                            color = if (esAprobado) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
+                            color = colorChipFondo,
                             shape = RoundedCornerShape(16.dp)
                         ) {
                             Text(
-                                text = if (esAprobado) "APROBADO" else "DESAPROBADO",
-                                color = if (esAprobado) Color(0xFF2E7D32) else Color(0xFFC62828),
+                                text = observacion,
+                                color = colorChipTexto,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
                             )
@@ -231,7 +257,7 @@ fun Tarea03(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Desarrollado por: Yamil",
+                text = "Desarrollado por: Yamil Aarón Ochoa Quispe",
                 color = Color.Gray,
                 fontSize = 12.sp,
                 modifier = Modifier.fillMaxWidth(),
@@ -276,7 +302,6 @@ fun CursoItem(
         }
         Slider(
             value = nota,
-
             onValueChange = { onNotaChange(it.roundToInt().toFloat()) },
             valueRange = 0f..20f,
             steps = 19,
