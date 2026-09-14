@@ -33,5 +33,16 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun TemperatureDisplay(modifier: Modifier = Modifier) {
     var temperatura by remember { mutableDoubleStateOf(20.0) }
-}
+
+    Column(
+        modifier = modifier.padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Temperatura actual: $temperatura°C",
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
 
