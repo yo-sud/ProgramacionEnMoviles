@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Lab04">
         <activity
-            android:name=".MainActivity"
+            android:name=".Lab04Activity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Lab04"

@@ -18,6 +18,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 
 data class Tarea(
     val id: Int,
@@ -80,3 +83,76 @@ fun ItemTarea(
     }
 }
 
+@Composable
+fun PantallaTareas() {
+    var textoTarea by remember { mutableStateOf("") }
+    var contadorId by remember { mutableStateOf(1) }
+    val listaTareas = remember { mutableStateListOf<Tarea>() }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+
+    ) {
+        Text(
+            text = "Lista de tareas",
+            style = MaterialTheme.typography.headlineMedium
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = textoTarea,
+            onValueChange = { textoTarea = it },
+            label = { Text("Ingrese una tarea") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(
+            onClick = {
+                if (textoTarea.isNotBlank()) {
+                    listaTareas.add(
+                        Tarea(
+                            id = contadorId,
+                            nombre = textoTarea
+                        )
+                    )
+                    contadorId++
+                    textoTarea = ""
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Agregar tarea")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Total de tareas: ${listaTareas.size}",
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        LazyColumn {
+            items(listaTareas, key = { it.id }) { tarea ->
+                ItemTarea(
+                    tarea = tarea,
+                    onEliminar = {
+                        listaTareas.remove(tarea)
+                    },
+                    onCambiarEstado = { completada ->
+                        val index = listaTareas.indexOf(tarea)
+                        if (index != -1) {
+                            listaTareas[index] = listaTareas[index].copy(completada = completada)
+                        }
+                    }
+                )
+            }
+        }
+    }
+}
