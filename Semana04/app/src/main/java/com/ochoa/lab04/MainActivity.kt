@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.ui.graphics.Color
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +33,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
 @Composable
 fun TemperatureDisplay(modifier: Modifier = Modifier) {
     var temperatura by remember { mutableDoubleStateOf(20.0) }
@@ -39,10 +41,16 @@ fun TemperatureDisplay(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
-    ){
+    ) {
+        val color = when {
+            temperatura > 30 -> Color.Red
+            temperatura < 10 -> Color.Blue
+            else -> Color.Unspecified
+        }
         Text(
             text = "Temperatura actual: $temperatura°C",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium,
+            color = color
         )
         Spacer(modifier = Modifier.height(8.dp))
 
