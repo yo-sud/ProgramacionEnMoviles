@@ -32,6 +32,6 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun TemperatureDisplay(modifier: Modifier = Modifier) {
-
+    var temperatura by remember { mutableDoubleStateOf(20.0) }
 }
 
