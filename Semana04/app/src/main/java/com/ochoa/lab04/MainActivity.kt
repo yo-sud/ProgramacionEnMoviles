@@ -25,7 +25,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Surface( modifier = Modifier.fillMaxSize()) { }
+            Surface( modifier = Modifier.fillMaxSize()) {
+                TemperatureDisplay()
+            }
         }
     }
 }
@@ -43,6 +45,12 @@ fun TemperatureDisplay(modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.headlineMedium
         )
         Spacer(modifier = Modifier.height(8.dp))
+
+        Button(onClick = { temperatura += 1.0 }) {
+            Text("Subir")
+        }
+        Button(onClick = { temperatura -= 1.0 }) {
+            Text("Bajar")
         }
     }
-
+}
