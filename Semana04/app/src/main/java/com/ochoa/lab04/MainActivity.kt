@@ -39,7 +39,7 @@ fun TemperatureDisplay(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    ){
         Text(
             text = "Temperatura actual: $temperatura°C",
             style = MaterialTheme.typography.headlineMedium
@@ -51,6 +51,9 @@ fun TemperatureDisplay(modifier: Modifier = Modifier) {
         }
         Button(onClick = { temperatura -= 1.0 }) {
             Text("Bajar")
+        }
+        Button(onClick = { temperatura = 20.0 }) {
+            Text("Resetear")
         }
     }
 }
