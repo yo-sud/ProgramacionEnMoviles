@@ -35,6 +35,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.Box
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,7 +44,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Lab04CarritoTecsupTheme {
-                Scaffold( modifier = Modifier.fillMaxSize() ) { innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     PantallaCarrito(modifier = Modifier.padding(innerPadding))
                 }
             }
@@ -52,10 +54,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+    Text(text = "Hello $name!", modifier = modifier)
 }
 
 @Preview(showBackground = true)
@@ -73,9 +72,7 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
     var cantidad by remember { mutableStateOf("") }
     val productos = remember { mutableStateListOf<Producto>() }
 
-    Column(
-        modifier.fillMaxWidth().padding(16.dp)
-    ) {
+    Column(modifier.fillMaxWidth().padding(16.dp)) {
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it },
@@ -100,13 +97,16 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
                 modifier = Modifier.weight(1f)
             )
         }
+
         Button(
             onClick = {
                 val precioNum = precio.toDoubleOrNull() ?: 0.0
                 val cantidadNum = cantidad.toIntOrNull() ?: 0
                 if (nombre.isNotBlank() && precioNum > 0 && cantidadNum > 0) {
                     productos.add(Producto(nombre, precioNum, cantidadNum))
-                    nombre = ""; precio = ""; cantidad = "";
+                    nombre = ""
+                    precio = ""
+                    cantidad = ""
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -114,17 +114,69 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
             Text("AGREGAR")
         }
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        val subtotal = productos.sumOf { it.precio * it.cantidad }
+        val igv = subtotal * 0.18
+        val total = subtotal + igv
+
+        if (productos.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text = "Tu carrito está vacío", color = Color.Gray)
+                    Text(text = "Agrega productos para comenzar", color = Color.Gray)
+                }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(productos) { producto ->
+                    TarjetaProducto(
+                        producto = producto,
+                        onEliminar = { productos.remove(producto) }
+                    )
+                }
+            }
+        }
+
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.surfaceVariant
         ) {
-            items(productos) { producto ->
-                TarjetaProducto(
-                    producto = producto,
-                    onEliminar = { productos.remove(producto) }
-                )
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Subtotal")
+                    Text("S/ %.2f".format(subtotal))
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("IGV (18%)")
+                    Text("S/ %.2f".format(igv))
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "TOTAL",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "S/ %.2f".format(total),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Text("Productos: ${productos.size}")
             }
         }
     }
@@ -148,17 +200,14 @@ fun TarjetaProducto(producto: Producto, onEliminar: () -> Unit) {
                     color = Color.Gray
                 )
             }
-            Text(
-                text = "S/ %.2f".format(producto.importe)
-            )
+            Text(text = "S/ %.2f".format(producto.importe))
             IconButton(onClick = onEliminar) {
                 Icon(
-                    imageVector = Icons.Default.Delete,
+                       imageVector = Icons.Default.Delete,
                     contentDescription = "Eliminar",
                     tint = MaterialTheme.colorScheme.error
                 )
             }
-
         }
     }
 }
