@@ -37,6 +37,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -184,6 +186,8 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
 
 @Composable
 fun TarjetaProducto(producto: Producto, onEliminar: () -> Unit) {
+    var mostrarDialogo by remember { mutableStateOf(false) }
+
     Card(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(16.dp).fillMaxWidth(),
@@ -201,7 +205,7 @@ fun TarjetaProducto(producto: Producto, onEliminar: () -> Unit) {
                 )
             }
             Text(text = "S/ %.2f".format(producto.importe))
-            IconButton(onClick = onEliminar) {
+            IconButton(onClick = { mostrarDialogo = true }) {
                 Icon(
                        imageVector = Icons.Default.Delete,
                     contentDescription = "Eliminar",
@@ -209,5 +213,22 @@ fun TarjetaProducto(producto: Producto, onEliminar: () -> Unit) {
                 )
             }
         }
+    }
+
+    if (mostrarDialogo) {
+        AlertDialog(
+            onDismissRequest = { mostrarDialogo = false },
+            title = { Text("¿Eliminar este producto?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onEliminar()
+                    mostrarDialogo = false
+
+                }) { Text("Eliminar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { mostrarDialogo = false }) { Text("Cancelar") }
+            }
+        )
     }
 }
