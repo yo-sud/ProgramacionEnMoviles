@@ -55,7 +55,12 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = { Text("Mi Carrito TECSUP") },
+                            title = {
+                                Text(
+                                    "Mi Carrito TECSUP",
+                                    fontWeight = FontWeight.Bold
+                                )
+                                    },
                             colors = TopAppBarDefaults.topAppBarColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 titleContentColor = MaterialTheme.colorScheme.onPrimary
