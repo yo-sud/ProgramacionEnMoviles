@@ -192,19 +192,21 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
                     color = Color.Gray,
                     style = MaterialTheme.typography.bodySmall
                 )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Subtotal")
-                    Text("S/ %.2f".format(subtotal))
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("IGV (18%)")
-                    Text("S/ %.2f".format(igv))
+                if (productos.isNotEmpty()){
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Subtotal")
+                        Text("S/ %.2f".format(subtotal))
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("IGV (18%)")
+                        Text("S/ %.2f".format(igv))
+                    }
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -213,10 +215,12 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
                     Text(
                         text = "TOTAL",
                         style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = "S/ %.2f".format(totalConDescuento),
+                        fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
