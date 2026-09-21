@@ -39,14 +39,29 @@ import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             Lab04CarritoTecsupTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = { Text("Mi Carrito TECSUP") },
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                titleContentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        )
+                    },
+                    modifier = Modifier.fillMaxSize()
+                ) { innerPadding ->
                     PantallaCarrito(modifier = Modifier.padding(innerPadding))
                 }
             }
@@ -78,7 +93,7 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it },
-            label = { Text("Nombre") },
+            label = { Text("Nombre del producto") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -89,7 +104,7 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
             OutlinedTextField(
                 value = precio,
                 onValueChange = { precio = it },
-                label = { Text("Precio") },
+                label = { Text("Precio (S/)") },
                 modifier = Modifier.weight(1f)
             )
             OutlinedTextField(
@@ -134,7 +149,7 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = "Tu carrito está vacío", color = Color.Gray)
-                    Text(text = "Agrega productos para comenzar", color = Color.Gray)
+                    Text(text = "Agrega tu primer producto", color = Color.Gray)
                 }
             }
         } else {
