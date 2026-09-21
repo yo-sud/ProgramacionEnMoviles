@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,6 +43,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.CardDefaults
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -180,6 +182,11 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
             color = MaterialTheme.colorScheme.surfaceVariant
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "Productos: ${productos.size}",
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.bodySmall
+                )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -209,7 +216,6 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
-                Text("Productos: ${productos.size}")
             }
         }
     }
@@ -219,7 +225,11 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
 fun TarjetaProducto(producto: Producto, onEliminar: () -> Unit) {
     var mostrarDialogo by remember { mutableStateOf(false) }
 
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, Color.LightGray)
+    ) {
         Row(
             modifier = Modifier.padding(16.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -235,7 +245,10 @@ fun TarjetaProducto(producto: Producto, onEliminar: () -> Unit) {
                     color = Color.Gray
                 )
             }
-            Text(text = "S/ %.2f".format(producto.importe))
+            Text(
+                text = "S/ %.2f".format(producto.importe),
+                color = MaterialTheme.colorScheme.primary
+            )
             IconButton(onClick = { mostrarDialogo = true }) {
                 Icon(
                        imageVector = Icons.Default.Delete,
