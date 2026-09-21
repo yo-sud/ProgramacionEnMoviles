@@ -119,6 +119,13 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
         val subtotal = productos.sumOf { it.precio * it.cantidad }
         val igv = subtotal * 0.18
         val total = subtotal + igv
+        val descuento = when {
+            total > 5000 -> 0.10
+            total > 3000 -> 0.05
+            else -> 0.0
+        }
+        val descuentoAlMonto = total * descuento
+        val totalConDescuento = total - descuentoAlMonto
 
         if (productos.isEmpty()) {
             Box(
@@ -141,6 +148,15 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
                         onEliminar = { productos.remove(producto) }
                     )
                 }
+            }
+        }
+        if (descuentoAlMonto > 0.0) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("Descuento (${(descuentoAlMonto * 100).toInt()}%)")
+                Text("- S/ %.2f".format(descuentoAlMonto))
             }
         }
 
