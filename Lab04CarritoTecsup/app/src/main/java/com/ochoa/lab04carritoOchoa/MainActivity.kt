@@ -155,7 +155,7 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Descuento (${(descuentoAlMonto * 100).toInt()}%)")
+                Text("Descuento (${(descuento * 100).toInt()}%)")
                 Text("- S/ %.2f".format(descuentoAlMonto))
             }
         }
@@ -189,7 +189,7 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "S/ %.2f".format(total),
+                        text = "S/ %.2f".format(totalConDescuento),
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
