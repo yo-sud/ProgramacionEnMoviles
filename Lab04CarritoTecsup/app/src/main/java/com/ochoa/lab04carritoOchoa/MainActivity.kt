@@ -39,11 +39,11 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.CardDefaults
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -55,12 +55,12 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = {
+                            title = { 
                                 Text(
-                                    "Mi Carrito TECSUP",
-                                    fontWeight = FontWeight.Bold
-                                )
-                                    },
+                                    text = "Mi carrito Tecsup",
+                                    fontWeight = FontWeight.Bold 
+                                ) 
+                            },
                             colors = TopAppBarDefaults.topAppBarColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -96,92 +96,101 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
     var cantidad by remember { mutableStateOf("") }
     val productos = remember { mutableStateListOf<Producto>() }
 
-    Column(modifier.fillMaxWidth().padding(16.dp)) {
-        OutlinedTextField(
-            value = nombre,
-            onValueChange = { nombre = it },
-            label = { Text("Nombre del producto") },
-            modifier = Modifier.fillMaxWidth()
-        )
+    val subtotal = productos.sumOf { it.precio * it.cantidad }
+    val igv = subtotal * 0.18
+    val total = subtotal + igv
+    val descuento = when {
+        total > 5000 -> 0.10
+        total > 3000 -> 0.05
+        else -> 0.0
+    }
+    val descuentoAlMonto = total * descuento
+    val totalConDescuento = total - descuentoAlMonto
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+    Column(modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .weight(1f)
         ) {
             OutlinedTextField(
-                value = precio,
-                onValueChange = { precio = it },
-                label = { Text("Precio (S/)") },
-                modifier = Modifier.weight(1f)
+                value = nombre,
+                onValueChange = { nombre = it },
+                label = { Text("Nombre del producto") },
+                modifier = Modifier.fillMaxWidth()
             )
-            OutlinedTextField(
-                value = cantidad,
-                onValueChange = { cantidad = it },
-                label = { Text("Cantidad") },
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Button(
-            onClick = {
-                val precioNum = precio.toDoubleOrNull() ?: 0.0
-                val cantidadNum = cantidad.toIntOrNull() ?: 0
-                if (nombre.isNotBlank() && precioNum > 0 && cantidadNum > 0) {
-                    productos.add(Producto(nombre, precioNum, cantidadNum))
-                    nombre = ""
-                    precio = ""
-                    cantidad = ""
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("AGREGAR")
-        }
-
-        val subtotal = productos.sumOf { it.precio * it.cantidad }
-        val igv = subtotal * 0.18
-        val total = subtotal + igv
-        val descuento = when {
-            total > 5000 -> 0.10
-            total > 3000 -> 0.05
-            else -> 0.0
-        }
-        val descuentoAlMonto = total * descuento
-        val totalConDescuento = total - descuentoAlMonto
-
-        if (productos.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxWidth().weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "Tu carrito está vacío", color = Color.Gray)
-                    Text(text = "Agrega tu primer producto", color = Color.Gray)
-                }
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth().weight(1f),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(productos) { producto ->
-                    TarjetaProducto(
-                        producto = producto,
-                        onEliminar = { productos.remove(producto) }
-                    )
-                }
-            }
-        }
-        if (descuentoAlMonto > 0.0) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("Descuento (${(descuento * 100).toInt()}%)")
-                Text("- S/ %.2f".format(descuentoAlMonto))
+                OutlinedTextField(
+                    value = precio,
+                    onValueChange = { precio = it },
+                    label = { Text("Precio (S/)") },
+                    modifier = Modifier.weight(1f)
+                )
+                OutlinedTextField(
+                    value = cantidad,
+                    onValueChange = { cantidad = it },
+                    label = { Text("Cantidad") },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Button(
+                onClick = {
+                    val precioNum = precio.toDoubleOrNull() ?: 0.0
+                    val cantidadNum = cantidad.toIntOrNull() ?: 0
+                    if (nombre.isNotBlank() && precioNum > 0 && cantidadNum > 0) {
+                        productos.add(Producto(nombre, precioNum, cantidadNum))
+                        nombre = ""
+                        precio = ""
+                        cantidad = ""
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("AGREGAR")
+            }
+
+            if (productos.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "Tu carrito está vacío",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Gray
+                        )
+                        Text(text = "Agrega tu primer producto", color = Color.Gray)
+                    }
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(productos) { producto ->
+                        TarjetaProducto(
+                            producto = producto,
+                            onEliminar = { productos.remove(producto) }
+                        )
+                    }
+                }
+            }
+            if (descuentoAlMonto > 0.0) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Descuento (${(descuento * 100).toInt()}%)")
+                    Text("- S/ %.2f".format(descuentoAlMonto))
+                }
             }
         }
-
         Surface(
             modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.surfaceVariant
