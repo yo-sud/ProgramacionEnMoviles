@@ -5,19 +5,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.ochoa.lab05.navigation.AppNavigation
 import com.ochoa.lab05.navigation.Screen
 import com.ochoa.lab05.screens.DetailScreen
 import com.ochoa.lab05.screens.HomeScreen
 import com.ochoa.lab05.screens.ListScreen
 import com.ochoa.lab05.screens.ProfileScreen
-import com.ochoa.lab05.ui.theme.Lab05Theme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +55,7 @@ fun AppNavigation() {
                 }
             )
         ) { backStackEntry ->
-            val itemId = backStackEntry.arguments?.getInt(key = "itemId") ?: 0
+            val itemId = backStackEntry.arguments?.getInt("itemId") ?: 0
             DetailScreen(navController, itemId)
         }
     }
