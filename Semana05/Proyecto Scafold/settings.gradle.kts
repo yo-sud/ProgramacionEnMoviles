@@ -22,6 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "lab05"
-include(":app")
+rootProject.name = "tecsupfit"
 include(":app")
