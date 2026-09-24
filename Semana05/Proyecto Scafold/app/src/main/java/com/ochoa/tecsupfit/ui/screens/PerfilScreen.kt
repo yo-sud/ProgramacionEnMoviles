@@ -1,13 +1,14 @@
 package com.ochoa.tecsupfit.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.ochoa.tecsupfit.model.Reserva
 
 @Composable
@@ -23,7 +24,11 @@ fun PerfilScreen(
         modifier = modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "👤", fontSize = 56.sp)
+        Icon(
+            imageVector = Icons.Filled.AccountCircle,
+            contentDescription = null,
+            modifier = Modifier.size(72.dp)
+        )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Alex Ochoa",
