@@ -4,9 +4,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.*
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.ochoa.tecsupfit.navigation.NavGraph
+import com.ochoa.tecsupfit.navigation.Pantalla
 import com.ochoa.tecsupfit.ui.theme.TecsupfitTheme
 
 class MainActivity : ComponentActivity() {
@@ -15,10 +22,41 @@ class MainActivity : ComponentActivity() {
         setContent {
             TecsupfitTheme {
                 val navController = rememberNavController()
-                NavGraph(
-                    navController = navController,
-                    modifier = Modifier.fillMaxSize()
-                )
+
+                Scaffold(
+                    bottomBar = {
+                        val navBackStackEntry by navController.currentBackStackEntryAsState()
+                        val currentDestination = navBackStackEntry?.destination
+
+                        NavigationBar {
+                            Pantalla.itemsBottomBar.forEach { pantalla ->
+                                NavigationBarItem(
+                                    selected = currentDestination?.hierarchy?.any {
+                                        it.route == pantalla.ruta
+                                    } == true,
+                                    onClick = {
+                                        navController.navigate(pantalla.ruta) {
+                                            popUpTo(navController.graph.findStartDestination().id) {
+                                                saveState = true
+                                            }
+                                            launchSingleTop = true
+                                            restoreState = true
+                                        }
+                                    },
+                                    icon = { Icon(pantalla.icono!!, contentDescription = pantalla.etiqueta) },
+                                    label = { Text(pantalla.etiqueta!!) }
+                                )
+                            }
+                        }
+                    }
+                ) { paddingInterno ->
+                    NavGraph(
+                        navController = navController,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingInterno)
+                    )
+                }
             }
         }
     }
