@@ -15,6 +15,7 @@ import com.ochoa.tecsupfit.ui.screens.DetalleScreen
 import com.ochoa.tecsupfit.ui.screens.InicioScreen
 import com.ochoa.tecsupfit.ui.screens.ReservasScreen
 import com.ochoa.tecsupfit.ui.screens.RutinasScreen
+import com.ochoa.tecsupfit.ui.screens.PerfilScreen
 
 @Composable
 fun NavGraph(
@@ -87,7 +88,7 @@ fun NavGraph(
         }
 
         composable(Pantalla.Perfil.ruta) {
-            androidx.compose.material3.Text("Pantalla de Perfil (pendiente)")
+            PerfilScreen(reservas = listaReservas)
         }
     }
 }
