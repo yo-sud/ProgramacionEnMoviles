@@ -1,5 +1,6 @@
 package com.ochoa.tecsupfit.navigation
 
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -11,6 +12,7 @@ import com.ochoa.tecsupfit.model.clasesDeEjemplo
 import com.ochoa.tecsupfit.ui.screens.ConfirmacionScreen
 import com.ochoa.tecsupfit.ui.screens.DetalleScreen
 import com.ochoa.tecsupfit.ui.screens.InicioScreen
+import com.ochoa.tecsupfit.ui.screens.RutinasScreen
 
 @Composable
 fun NavGraph(
@@ -62,9 +64,23 @@ fun NavGraph(
                 clase = clase,
                 horarioElegido = horario,
                 onVerReservasClick = {
-                    navController.popBackStack(Pantalla.Inicio.ruta, inclusive = false)
+                    navController.navigate(Pantalla.Reservas.ruta) {
+                        popUpTo(Pantalla.Inicio.ruta)
+                    }
                 }
             )
+        }
+
+        composable(Pantalla.Reservas.ruta) {
+            Text("Pantalla de Reservas (pendiente)")
+        }
+
+        composable(Pantalla.Rutinas.ruta) {
+            RutinasScreen()
+        }
+
+        composable(Pantalla.Perfil.ruta) {
+            Text("Pantalla de Perfil (pendiente)")
         }
     }
 }
