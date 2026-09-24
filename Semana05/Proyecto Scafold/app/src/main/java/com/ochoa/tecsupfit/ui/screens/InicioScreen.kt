@@ -18,20 +18,14 @@ fun InicioScreen(
     onClaseClick: (ClaseGimnasio) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Estado del filtro seleccionado (selección única), manejado con remember
     var filtroSeleccionado by remember { mutableStateOf("Hoy") }
     val categorias = listOf("Hoy", "Esta semana")
-
-    // Filtra la lista según la categoría elegida
     val clasesFiltradas = clasesDeEjemplo.filter { it.categoria == filtroSeleccionado }
 
     Column(modifier = modifier.fillMaxSize()) {
 
-        // LazyRow de chips de filtro
         LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(categorias) { categoria ->
@@ -43,11 +37,8 @@ fun InicioScreen(
             }
         }
 
-        // LazyColumn de clases filtradas
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(clasesFiltradas) { clase ->
@@ -58,15 +49,8 @@ fun InicioScreen(
 }
 
 @Composable
-fun TarjetaClase(
-    clase: ClaseGimnasio,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-    ) {
+fun TarjetaClase(clase: ClaseGimnasio, onClick: () -> Unit) {
+    Card(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = clase.nombre, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(4.dp))

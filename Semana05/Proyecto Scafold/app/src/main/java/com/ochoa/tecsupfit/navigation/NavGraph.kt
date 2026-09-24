@@ -1,13 +1,47 @@
 package com.ochoa.tecsupfit.navigation
 
-sealed class Pantalla(val ruta: String) {
-    object Inicio : Pantalla("inicio")
-    object Detalle : Pantalla("detalle/{claseId}") {
-        fun crearRuta(claseId: Int) = "detalle/$claseId"
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.ochoa.tecsupfit.model.clasesDeEjemplo
+import com.ochoa.tecsupfit.ui.screens.DetalleScreen
+import com.ochoa.tecsupfit.ui.screens.InicioScreen
+
+@Composable
+fun NavGraph(
+    navController: NavHostController,
+    modifier: Modifier = Modifier
+) {
+    NavHost(
+        navController = navController,
+        startDestination = Pantalla.Inicio.ruta,
+        modifier = modifier
+    ) {
+        composable(Pantalla.Inicio.ruta) {
+            InicioScreen(
+                onClaseClick = { clase ->
+                    navController.navigate(Pantalla.Detalle.crearRuta(clase.id))
+                }
+            )
+        }
+
+        composable(
+            route = Pantalla.Detalle.ruta,
+            arguments = listOf(navArgument("claseId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val claseId = backStackEntry.arguments?.getInt("claseId") ?: 0
+            val clase = clasesDeEjemplo.first { it.id == claseId }
+
+            DetalleScreen(
+                clase = clase,
+                onReservarClick = {
+                    // TODO Commit 6: navegar a Confirmacion con el horario elegido
+                }
+            )
+        }
     }
-    object Confirmacion : Pantalla("confirmacion/{claseId}/{horario}") {
-        fun crearRuta(claseId: Int, horario: String) = "confirmacion/$claseId/$horario"
-    }
-    object Reservas : Pantalla("reservas")
-    object Perfil : Pantalla("perfil")
 }

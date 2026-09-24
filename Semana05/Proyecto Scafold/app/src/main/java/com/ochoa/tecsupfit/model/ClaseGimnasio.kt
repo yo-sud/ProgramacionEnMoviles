@@ -15,7 +15,6 @@ data class Reserva(
     var estado: String = "Confirmada"
 )
 
-
 val clasesDeEjemplo = listOf(
     ClaseGimnasio(1, "Spinning", "7:00 AM", "Carla Ruiz", 5, "Hoy"),
     ClaseGimnasio(2, "Funcional", "9:00 AM", "Diego Paz", 8, "Hoy"),
