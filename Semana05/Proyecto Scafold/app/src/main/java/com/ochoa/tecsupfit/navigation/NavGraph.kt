@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.ochoa.tecsupfit.model.clasesDeEjemplo
+import com.ochoa.tecsupfit.ui.screens.ConfirmacionScreen
 import com.ochoa.tecsupfit.ui.screens.DetalleScreen
 import com.ochoa.tecsupfit.ui.screens.InicioScreen
 
@@ -38,8 +39,30 @@ fun NavGraph(
 
             DetalleScreen(
                 clase = clase,
-                onReservarClick = {
-                    // TODO Commit 6: navegar a Confirmacion con el horario elegido
+                onReservarClick = { horarioElegido ->
+                    navController.navigate(
+                        Pantalla.Confirmacion.crearRuta(clase.id, horarioElegido)
+                    )
+                }
+            )
+        }
+
+        composable(
+            route = Pantalla.Confirmacion.ruta,
+            arguments = listOf(
+                navArgument("claseId") { type = NavType.IntType },
+                navArgument("horario") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val claseId = backStackEntry.arguments?.getInt("claseId") ?: 0
+            val horario = backStackEntry.arguments?.getString("horario") ?: ""
+            val clase = clasesDeEjemplo.first { it.id == claseId }
+
+            ConfirmacionScreen(
+                clase = clase,
+                horarioElegido = horario,
+                onVerReservasClick = {
+                    navController.popBackStack(Pantalla.Inicio.ruta, inclusive = false)
                 }
             )
         }
