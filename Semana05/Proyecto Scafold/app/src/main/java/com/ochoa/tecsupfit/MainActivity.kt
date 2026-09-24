@@ -6,12 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.ochoa.tecsupfit.model.Reserva
 import com.ochoa.tecsupfit.navigation.NavGraph
 import com.ochoa.tecsupfit.navigation.Pantalla
 import com.ochoa.tecsupfit.ui.theme.TecsupfitTheme
@@ -22,6 +23,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             TecsupfitTheme {
                 val navController = rememberNavController()
+
+                val listaReservas = remember { mutableStateListOf<Reserva>() }
 
                 Scaffold(
                     bottomBar = {
@@ -52,6 +55,7 @@ class MainActivity : ComponentActivity() {
                 ) { paddingInterno ->
                     NavGraph(
                         navController = navController,
+                        listaReservas = listaReservas,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(paddingInterno)

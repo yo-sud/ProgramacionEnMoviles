@@ -1,22 +1,25 @@
 package com.ochoa.tecsupfit.navigation
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.ochoa.tecsupfit.model.Reserva
 import com.ochoa.tecsupfit.model.clasesDeEjemplo
 import com.ochoa.tecsupfit.ui.screens.ConfirmacionScreen
 import com.ochoa.tecsupfit.ui.screens.DetalleScreen
 import com.ochoa.tecsupfit.ui.screens.InicioScreen
+import com.ochoa.tecsupfit.ui.screens.ReservasScreen
 import com.ochoa.tecsupfit.ui.screens.RutinasScreen
 
 @Composable
 fun NavGraph(
     navController: NavHostController,
+    listaReservas: SnapshotStateList<Reserva>,
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -64,6 +67,10 @@ fun NavGraph(
                 clase = clase,
                 horarioElegido = horario,
                 onVerReservasClick = {
+                    val yaExiste = listaReservas.any { it.clase.id == clase.id && it.horarioElegido == horario }
+                    if (!yaExiste) {
+                        listaReservas.add(Reserva(clase = clase, horarioElegido = horario))
+                    }
                     navController.navigate(Pantalla.Reservas.ruta) {
                         popUpTo(Pantalla.Inicio.ruta)
                     }
@@ -72,7 +79,7 @@ fun NavGraph(
         }
 
         composable(Pantalla.Reservas.ruta) {
-            Text("Pantalla de Reservas (pendiente)")
+            ReservasScreen(reservas = listaReservas)
         }
 
         composable(Pantalla.Rutinas.ruta) {
@@ -80,7 +87,7 @@ fun NavGraph(
         }
 
         composable(Pantalla.Perfil.ruta) {
-            Text("Pantalla de Perfil (pendiente)")
+            androidx.compose.material3.Text("Pantalla de Perfil (pendiente)")
         }
     }
 }
