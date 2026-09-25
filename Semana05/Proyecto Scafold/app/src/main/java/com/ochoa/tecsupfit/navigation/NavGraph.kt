@@ -3,6 +3,7 @@ package com.ochoa.tecsupfit.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -73,14 +74,22 @@ fun NavGraph(
                         listaReservas.add(Reserva(clase = clase, horarioElegido = horario))
                     }
                     navController.navigate(Pantalla.Reservas.ruta) {
-                        popUpTo(Pantalla.Inicio.ruta)
+                        popUpTo(Pantalla.Inicio.ruta){
+                            inclusive = false
+                        }
+                        launchSingleTop = true
                     }
                 }
             )
         }
 
         composable(Pantalla.Reservas.ruta) {
-            ReservasScreen(reservas = listaReservas)
+            ReservasScreen(
+                reservas = listaReservas,
+                onCancelarReserva = { reserva ->
+                    listaReservas.remove(reserva)
+                }
+            )
         }
 
         composable(Pantalla.Rutinas.ruta) {

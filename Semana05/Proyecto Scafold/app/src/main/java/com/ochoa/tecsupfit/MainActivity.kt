@@ -9,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.ochoa.tecsupfit.model.Reserva
@@ -38,12 +37,13 @@ class MainActivity : ComponentActivity() {
                                         it.route == pantalla.ruta
                                     } == true,
                                     onClick = {
-                                        navController.navigate(pantalla.ruta) {
-                                            popUpTo(navController.graph.findStartDestination().id) {
-                                                saveState = true
+                                        if (currentDestination?.route != pantalla.ruta) {
+                                            navController.navigate(pantalla.ruta) {
+                                                popUpTo(Pantalla.Inicio.ruta) {
+                                                    inclusive = false
+                                                }
+                                                launchSingleTop = true
                                             }
-                                            launchSingleTop = true
-                                            restoreState = true
                                         }
                                     },
                                     icon = { Icon(pantalla.icono!!, contentDescription = pantalla.etiqueta) },
