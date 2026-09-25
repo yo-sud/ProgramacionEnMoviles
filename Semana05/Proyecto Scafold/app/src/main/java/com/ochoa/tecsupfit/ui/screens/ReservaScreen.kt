@@ -18,7 +18,6 @@ fun ReservasScreen(
     onCancelarReserva: (Reserva) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Reserva que el usuario quiere cancelar (null = ningun dialogo abierto)
     var reservaACancelar by remember { mutableStateOf<Reserva?>(null) }
 
     if (reservas.isEmpty()) {
