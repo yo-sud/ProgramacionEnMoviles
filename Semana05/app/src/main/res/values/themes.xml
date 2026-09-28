@@ -2,4 +2,6 @@
 <resources>
 
     <style name="Theme.Lab05" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.Clinicasalud" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>

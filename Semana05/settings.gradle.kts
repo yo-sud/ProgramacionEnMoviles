@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "lab05"
 include(":app")
+include(":app")
