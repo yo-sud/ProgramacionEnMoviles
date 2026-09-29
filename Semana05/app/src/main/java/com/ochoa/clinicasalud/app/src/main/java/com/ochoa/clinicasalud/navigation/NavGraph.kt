@@ -1,6 +1,5 @@
 package com.ochoa.clinicasalud.navigation
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -9,7 +8,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.ochoa.clinicasalud.model.medicosDeEjemplo
+import com.ochoa.clinicasalud.ui.screens.AgendarCitaScreen
+import com.ochoa.clinicasalud.ui.screens.ConfirmacionScreen
 import com.ochoa.clinicasalud.ui.screens.InicioScreen
+import com.ochoa.clinicasalud.ui.screens.PerfilMedicoScreen
 
 @Composable
 fun NavGraph(
@@ -35,7 +37,58 @@ fun NavGraph(
         ) { backStackEntry ->
             val medicoId = backStackEntry.arguments?.getInt("medicoId") ?: 0
             val medico = medicosDeEjemplo.first { it.id == medicoId }
-            Text("Perfil de: ${medico.nombre}")
+
+            PerfilMedicoScreen(
+                medico = medico,
+                onAgendarCitaClick = {
+                    navController.navigate(Pantalla.AgendarCita.crearRuta(medico.id))
+                }
+            )
+        }
+
+        composable(
+            route = Pantalla.AgendarCita.ruta,
+            arguments = listOf(navArgument("medicoId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val medicoId = backStackEntry.arguments?.getInt("medicoId") ?: 0
+            val medico = medicosDeEjemplo.first { it.id == medicoId }
+
+            AgendarCitaScreen(
+                medico = medico,
+                onConfirmarClick = { fecha, hora ->
+                    navController.navigate(
+                        Pantalla.Confirmacion.crearRuta(medico.id, fecha, hora)
+                    )
+                }
+            )
+        }
+
+        composable(
+            route = Pantalla.Confirmacion.ruta,
+            arguments = listOf(
+                navArgument("medicoId") { type = NavType.IntType },
+                navArgument("fecha") { type = NavType.StringType },
+                navArgument("hora") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val medicoId = backStackEntry.arguments?.getInt("medicoId") ?: 0
+            val fecha = backStackEntry.arguments?.getString("fecha") ?: ""
+            val hora = backStackEntry.arguments?.getString("hora") ?: ""
+            val medico = medicosDeEjemplo.first { it.id == medicoId }
+
+            ConfirmacionScreen(
+                medico = medico,
+                fecha = fecha,
+                hora = hora,
+                onVolverInicioClick = {
+                    navController.navigate(Pantalla.Inicio.ruta) {
+                        popUpTo(Pantalla.Inicio.ruta) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
+                }
+            )
         }
     }
 }
