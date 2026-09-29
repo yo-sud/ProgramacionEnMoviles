@@ -90,5 +90,13 @@ fun NavGraph(
                 }
             )
         }
+
+        composable(Pantalla.MisCitas.ruta) {
+            androidx.compose.material3.Text("Mis citas (pendiente)")
+        }
+
+        composable(Pantalla.HistorialMedico.ruta) {
+            androidx.compose.material3.Text("Historial médico (pendiente)")
+        }
     }
 }
