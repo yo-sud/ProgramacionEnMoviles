@@ -12,6 +12,7 @@ import com.ochoa.clinicasalud.model.Cita
 import com.ochoa.clinicasalud.model.medicosDeEjemplo
 import com.ochoa.clinicasalud.ui.screens.AgendarCitaScreen
 import com.ochoa.clinicasalud.ui.screens.ConfirmacionScreen
+import com.ochoa.clinicasalud.ui.screens.HistorialMedicoScreen
 import com.ochoa.clinicasalud.ui.screens.InicioScreen
 import com.ochoa.clinicasalud.ui.screens.MisCitasScreen
 import com.ochoa.clinicasalud.ui.screens.PerfilMedicoScreen
@@ -106,7 +107,7 @@ fun NavGraph(
         }
 
         composable(Pantalla.HistorialMedico.ruta) {
-            androidx.compose.material3.Text("Historial médico (pendiente)")
+            HistorialMedicoScreen(citas = listaCitas)
         }
     }
 }
