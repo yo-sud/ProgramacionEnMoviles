@@ -1,21 +1,25 @@
 package com.ochoa.clinicasalud.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.ochoa.clinicasalud.model.Cita
 import com.ochoa.clinicasalud.model.medicosDeEjemplo
 import com.ochoa.clinicasalud.ui.screens.AgendarCitaScreen
 import com.ochoa.clinicasalud.ui.screens.ConfirmacionScreen
 import com.ochoa.clinicasalud.ui.screens.InicioScreen
+import com.ochoa.clinicasalud.ui.screens.MisCitasScreen
 import com.ochoa.clinicasalud.ui.screens.PerfilMedicoScreen
 
 @Composable
 fun NavGraph(
     navController: NavHostController,
+    listaCitas: SnapshotStateList<Cita>,
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -81,6 +85,12 @@ fun NavGraph(
                 fecha = fecha,
                 hora = hora,
                 onVolverInicioClick = {
+                    val yaExiste = listaCitas.any {
+                        it.medico.id == medico.id && it.fecha == fecha && it.hora == hora
+                    }
+                    if (!yaExiste) {
+                        listaCitas.add(Cita(medico = medico, fecha = fecha, hora = hora))
+                    }
                     navController.navigate(Pantalla.Inicio.ruta) {
                         popUpTo(Pantalla.Inicio.ruta) {
                             inclusive = false
@@ -92,7 +102,7 @@ fun NavGraph(
         }
 
         composable(Pantalla.MisCitas.ruta) {
-            androidx.compose.material3.Text("Mis citas (pendiente)")
+            MisCitasScreen(citas = listaCitas)
         }
 
         composable(Pantalla.HistorialMedico.ruta) {
