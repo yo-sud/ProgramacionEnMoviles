@@ -101,9 +101,13 @@ fun NavGraph(
                 }
             )
         }
-
         composable(Pantalla.MisCitas.ruta) {
-            MisCitasScreen(citas = listaCitas)
+            MisCitasScreen(
+                citas = listaCitas,
+                onCancelarCita = { cita ->
+                    listaCitas.remove(cita)
+                }
+            )
         }
 
         composable(Pantalla.HistorialMedico.ruta) {
