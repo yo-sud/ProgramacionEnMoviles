@@ -4,4 +4,6 @@
     <style name="Theme.Lab05" parent="android:Theme.Material.Light.NoActionBar" />
 
     <style name="Theme.MyApplication" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.Tecsupstore" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>
