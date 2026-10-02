@@ -1,34 +1,40 @@
 package com.ochoa.tecsupstore
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.material3.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.foundation.layout.Box
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Flag
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
 @Composable
-fun TarjetaProducto(producto: Producto, modifier: Modifier = Modifier) {
+fun TarjetaProducto(
+    producto: Producto,
+    esFavorito: Boolean,
+    onToggleFavorito: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Card(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -38,7 +44,6 @@ fun TarjetaProducto(producto: Producto, modifier: Modifier = Modifier) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(producto.nombre, style = MaterialTheme.typography.titleMedium)
                 Text("S/ ${producto.precio}", style = MaterialTheme.typography.bodyMedium)
-
             }
             Box {
                 IconButton(onClick = { expanded = true }) {
@@ -49,9 +54,17 @@ fun TarjetaProducto(producto: Producto, modifier: Modifier = Modifier) {
                 }
                 DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                     DropdownMenuItem(
-                        text = { Text("Favoritos") },
-                        onClick = { expanded = false },
-                        leadingIcon = { Icon(Icons.Default.Favorite, contentDescription = null) }
+                        text = { Text(if (esFavorito) "Quitar de favoritos" else "Favoritos") },
+                        onClick = {
+                            onToggleFavorito()
+                            expanded = false
+                        },
+                        leadingIcon = {
+                            Icon(
+                                if (esFavorito) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = null
+                            )
+                        }
                     )
                     HorizontalDivider()
                     DropdownMenuItem(

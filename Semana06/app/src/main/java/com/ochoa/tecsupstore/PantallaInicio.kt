@@ -19,7 +19,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun PantallaInicio(modifier: Modifier = Modifier) {
+fun PantallaInicio(
+    favoritos: List<Int>,
+    onToggleFavorito: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
     var categoriaSeleccionada by remember { mutableStateOf("Todos") }
     val categorias = listOf("Todos") + productosEjemplo.map { it.categoria }.distinct()
 
@@ -57,7 +61,11 @@ fun PantallaInicio(modifier: Modifier = Modifier) {
                     )
                 }
                 items(lista, key = { it.id }) { producto ->
-                    TarjetaProducto(producto)
+                    TarjetaProducto(
+                        producto = producto,
+                        esFavorito = producto.id in favoritos,
+                        onToggleFavorito = { onToggleFavorito(producto.id) }
+                    )
                 }
             }
         }

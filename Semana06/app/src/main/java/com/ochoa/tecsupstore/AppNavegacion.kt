@@ -16,6 +16,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +42,12 @@ fun AppNavegacion() {
     val scope = rememberCoroutineScope()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val rutaActual = backStackEntry?.destination?.route ?: Rutas.INICIO
+
+    // Estado elevado: ids de los productos marcados como favoritos.
+    val favoritos = remember { mutableStateListOf<Int>() }
+    val onToggleFavorito: (Int) -> Unit = { id ->
+        if (id in favoritos) favoritos.remove(id) else favoritos.add(id)
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -70,7 +78,12 @@ fun AppNavegacion() {
                 startDestination = Rutas.INICIO,
                 modifier = Modifier.padding(padding)
             ) {
-                composable(Rutas.INICIO) { PantallaInicio() }
+                composable(Rutas.INICIO) {
+                    PantallaInicio(
+                        favoritos = favoritos,
+                        onToggleFavorito = onToggleFavorito
+                    )
+                }
                 composable(Rutas.PEDIDOS) { PantallaMarcador("Mis pedidos") }
                 composable(Rutas.FAVORITOS) { PantallaMarcador("Favoritos") }
                 composable(Rutas.PERFIL) { PantallaMarcador("Perfil") }
