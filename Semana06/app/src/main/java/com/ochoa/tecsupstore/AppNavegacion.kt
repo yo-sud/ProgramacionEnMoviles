@@ -43,7 +43,6 @@ fun AppNavegacion() {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val rutaActual = backStackEntry?.destination?.route ?: Rutas.INICIO
 
-    // Estado elevado: ids de los productos marcados como favoritos.
     val favoritos = remember { mutableStateListOf<Int>() }
     val onToggleFavorito: (Int) -> Unit = { id ->
         if (id in favoritos) favoritos.remove(id) else favoritos.add(id)
@@ -54,6 +53,7 @@ fun AppNavegacion() {
         drawerContent = {
             AppDrawer(
                 rutaActual = rutaActual,
+                cantidadFavoritos = favoritos.size,
                 onNavegar = { ruta ->
                     navController.navigate(ruta) { launchSingleTop = true }
                     scope.launch { drawerState.close() }
