@@ -1,5 +1,6 @@
 package com.tecsup.mibodega.ui.cliente
 
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +34,10 @@ private object Rutas {
     const val INICIO = "inicio"
     const val DETALLE = "detalle/{productoId}"
     const val CARRITO = "carrito"
+
+    const val ENTREGA = "entrega"
+
+    const val CONFIRMACION = "confirmacion"
 
     fun detalle(productoId: Int) = "detalle/$productoId"
 }
@@ -121,6 +126,12 @@ fun ClienteApp() {
                 },
                 onContinuarPedido = { /* TODO: navegar a DatosEntregaScreen */ }
             )
+        }
+        composable(Rutas.ENTREGA) {
+            Text(text = "Entrega")
+        }
+        composable(Rutas.CONFIRMACION) {
+            Text(text = "Confirmación")
         }
     }
 }
