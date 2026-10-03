@@ -19,6 +19,7 @@ import com.tecsup.mibodega.ui.cliente.screens.carrito.CarritoScreen
 import com.tecsup.mibodega.ui.cliente.screens.detalle.DetalleProductoScreen
 import com.tecsup.mibodega.ui.cliente.screens.inicio.InicioScreen
 import com.tecsup.mibodega.ui.cliente.screens.registro.RegistroScreen
+import com.tecsup.mibodega.ui.cliente.screens.entrega.DatosEntregaScreen
 
 /**
  * "Director de orquesta" de la app cliente:
@@ -124,14 +125,18 @@ fun ClienteApp() {
                 onEliminar = { producto ->
                     carrito = carrito.filterNot { it.producto.id == producto.id }
                 },
-                onContinuarPedido = { /* TODO: navegar a DatosEntregaScreen */ }
+                onContinuarPedido = { navController.navigate(Rutas.ENTREGA) }
             )
         }
         composable(Rutas.ENTREGA) {
-            Text(text = "Entrega")
+            DatosEntregaScreen(
+                carrito = carrito,
+                onVolver = { navController.popBackStack() },
+                onConfirmarPedido = { navController.navigate(Rutas.CONFIRMACION) }
+            )
         }
         composable(Rutas.CONFIRMACION) {
-            Text(text = "Confirmación")
+            Text(text = "Tu pedido ha sido confirmado!")
         }
     }
 }
