@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material3.Icon
@@ -54,13 +55,18 @@ fun DetalleProductoScreen(
     onAgregarAlCarrito: (Producto, Int) -> Unit
 ) {
     var cantidad by remember { mutableStateOf(1) }
+    var esFavorito by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .safeDrawingPadding()
     ) {
-        EncabezadoDetalle(onVolver = onVolver)
+        EncabezadoDetalle(
+            onVolver = onVolver,
+            esFavorito = esFavorito,
+            onFavorito = { esFavorito = !esFavorito }
+        )
 
         ImagenProducto()
 
@@ -113,7 +119,11 @@ fun DetalleProductoScreen(
 }
 
 @Composable
-private fun EncabezadoDetalle(onVolver: () -> Unit) {
+private fun EncabezadoDetalle(
+    onVolver: () -> Unit,
+    esFavorito: Boolean,
+    onFavorito: () -> Unit
+    ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -124,8 +134,9 @@ private fun EncabezadoDetalle(onVolver: () -> Unit) {
         IconButton(onClick = onVolver) {
             Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
         }
-        IconButton(onClick = { /* TODO: guardar como favorito */ }) {
-            Icon(Icons.Default.FavoriteBorder, contentDescription = "Favorito")
+        IconButton(onClick = { onFavorito() }) {
+            if (esFavorito) { Icon(Icons.Default.Favorite, "Quitar de Favoritos", tint = RojoPrecio) }
+            else Icon(Icons.Default.FavoriteBorder, contentDescription = "Agregar a Favoritos")
         }
     }
 }
