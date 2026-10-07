@@ -1,6 +1,5 @@
 package com.tecsup.mibodega.ui.cliente
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.tecsup.mibodega.ui.cliente.modelo.DatosCliente
 import com.tecsup.mibodega.ui.cliente.modelo.ItemCarrito
 import com.tecsup.mibodega.ui.cliente.modelo.Producto
 import com.tecsup.mibodega.ui.cliente.modelo.listaProductosFake
@@ -18,15 +18,16 @@ import com.tecsup.mibodega.ui.cliente.screens.bienvenida.BienvenidaScreen
 import com.tecsup.mibodega.ui.cliente.screens.carrito.CarritoScreen
 import com.tecsup.mibodega.ui.cliente.screens.confirmacion.ConfirmacionScreen
 import com.tecsup.mibodega.ui.cliente.screens.detalle.DetalleProductoScreen
+import com.tecsup.mibodega.ui.cliente.screens.entrega.DatosEntregaScreen
 import com.tecsup.mibodega.ui.cliente.screens.inicio.InicioScreen
 import com.tecsup.mibodega.ui.cliente.screens.registro.RegistroScreen
-import com.tecsup.mibodega.ui.cliente.screens.entrega.DatosEntregaScreen
 
 /**
  * "Director de orquesta" de la app cliente:
  * - Tiene el NavHost con las rutas de cada pantalla.
  * - Tiene el estado del carrito (List<ItemCarrito>), que se reparte
  *   hacia abajo a Inicio, Detalle, Carrito y Entrega.
+ * - Tiene los datos del cliente (registro), que se precargan en Entrega.
  * Ninguna Screen navega sola ni modifica el carrito directamente:
  * todas reciben funciones (lambdas) desde aquí (state hoisting).
  */
@@ -36,9 +37,7 @@ private object Rutas {
     const val INICIO = "inicio"
     const val DETALLE = "detalle/{productoId}"
     const val CARRITO = "carrito"
-
     const val ENTREGA = "entrega"
-
     const val CONFIRMACION = "confirmacion"
 
     fun detalle(productoId: Int) = "detalle/$productoId"
@@ -50,6 +49,9 @@ fun ClienteApp() {
 
     // El carrito vive aquí arriba, no en ninguna Screen.
     var carrito by remember { mutableStateOf<List<ItemCarrito>>(emptyList()) }
+
+    // Datos del cliente: se guardan al registrarse y se precargan en Entrega.
+    var cliente by remember { mutableStateOf(DatosCliente()) }
 
     NavHost(
         navController = navController,
@@ -67,7 +69,7 @@ fun ClienteApp() {
             RegistroScreen(
                 onVolver = { navController.popBackStack() },
                 onCrearCuenta = { nombre, telefono, direccion, referencia ->
-                    // TODO: guardar estos datos cuando exista el registro real
+                    cliente = DatosCliente(nombre, telefono, direccion, referencia)
                     navController.navigate(Rutas.INICIO) {
                         popUpTo(Rutas.BIENVENIDA) { inclusive = true }
                     }
@@ -129,11 +131,14 @@ fun ClienteApp() {
                 onContinuarPedido = { navController.navigate(Rutas.ENTREGA) }
             )
         }
+
         composable(Rutas.ENTREGA) {
             DatosEntregaScreen(
                 carrito = carrito,
+                cliente = cliente,
                 onVolver = { navController.popBackStack() },
-                onConfirmarPedido = {
+                onConfirmarPedido = { datos ->
+                    cliente = datos
                     navController.navigate(Rutas.CONFIRMACION) {
                         popUpTo(Rutas.INICIO)
                     }
@@ -141,6 +146,7 @@ fun ClienteApp() {
                 }
             )
         }
+
         composable(Rutas.CONFIRMACION) {
             ConfirmacionScreen(
                 onVolverAlInicio = { navController.popBackStack() }
