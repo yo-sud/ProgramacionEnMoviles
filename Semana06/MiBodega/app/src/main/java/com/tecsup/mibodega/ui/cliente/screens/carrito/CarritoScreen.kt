@@ -67,29 +67,36 @@ fun CarritoScreen(
     ) {
         EncabezadoCarrito(onVolver = onVolver)
 
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 20.dp),
-            contentPadding = PaddingValues(vertical = 8.dp)
-        ) {
-            items(carrito, key = { it.producto.id }) { item ->
-                FilaCarrito(
-                    item = item,
-                    onIncrementar = { onIncrementar(item.producto) },
-                    onDecrementar = { onDecrementar(item.producto) },
-                    onEliminar = { onEliminar(item.producto) }
-                )
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+        if (carrito.isEmpty()) {
+            CarritoVacio(
+                onVolver = onVolver,
+                modifier = Modifier.weight(1f)
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 20.dp),
+                contentPadding = PaddingValues(vertical = 8.dp)
+            ) {
+                items(carrito, key = { it.producto.id }) { item ->
+                    FilaCarrito(
+                        item = item,
+                        onIncrementar = { onIncrementar(item.producto) },
+                        onDecrementar = { onDecrementar(item.producto) },
+                        onEliminar = { onEliminar(item.producto) }
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                }
             }
-        }
 
-        ResumenYBoton(
-            subtotal = subtotal,
-            delivery = COSTO_DELIVERY,
-            total = total,
-            onContinuarPedido = onContinuarPedido
-        )
+            ResumenYBoton(
+                subtotal = subtotal,
+                delivery = COSTO_DELIVERY,
+                total = total,
+                onContinuarPedido = onContinuarPedido
+            )
+        }
     }
 }
 
@@ -110,6 +117,30 @@ private fun EncabezadoCarrito(onVolver: () -> Unit) {
             text = "Mi carrito",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+private fun CarritoVacio(
+    onVolver: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Tu carrito esta vacio",
+            style = MaterialTheme.typography.titleMedium
+        )
+        Spacer(Modifier.height(16.dp))
+        BotonPrimario(
+            texto = "Volver al inicio",
+            onClick = onVolver
         )
     }
 }
@@ -240,4 +271,3 @@ private fun CarritoPreview() {
         )
     }
 }
-
