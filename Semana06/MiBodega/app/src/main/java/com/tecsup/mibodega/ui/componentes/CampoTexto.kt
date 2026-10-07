@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
  * de Registro y Datos de entrega. Se usa en: Registro, Datos de entrega.
  *
  * @param teclado tipo de teclado, ej. KeyboardType.Phone para el teléfono
+ * @param esError si es true, marca el campo en rojo y muestra "Campo obligatorio"
  */
 @Composable
 fun CampoTexto(
@@ -27,7 +28,8 @@ fun CampoTexto(
     onValorCambia: (String) -> Unit,
     modifier: Modifier = Modifier,
     placeholder: String? = null,
-    teclado: KeyboardType = KeyboardType.Text
+    teclado: KeyboardType = KeyboardType.Text,
+    esError: Boolean = false
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
@@ -43,13 +45,21 @@ fun CampoTexto(
                 .fillMaxWidth(),
             placeholder = placeholder?.let { { Text(it) } },
             singleLine = true,
+            isError = esError,
+            supportingText = if (esError) {
+                { Text(text = "Campo obligatorio") }
+            } else {
+                null
+            },
             shape = RoundedCornerShape(10.dp),
             keyboardOptions = KeyboardOptions(keyboardType = teclado),
             colors = OutlinedTextFieldDefaults.colors(
                 unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                 focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                errorContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                 unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                focusedBorderColor = MaterialTheme.colorScheme.primary
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                errorBorderColor = MaterialTheme.colorScheme.error
             )
         )
     }

@@ -42,6 +42,11 @@ fun DatosEntregaScreen(
     var direccion by remember { mutableStateOf("") }
     var referencia by remember { mutableStateOf("") }
     var telefono by remember { mutableStateOf("") }
+    var intentoEnviar by remember { mutableStateOf(false) }
+
+    val formularioValido = direccion.isNotBlank() &&
+            referencia.isNotBlank() &&
+            telefono.isNotBlank()
 
     val subtotal = carrito.sumOf { it.producto.precio * it.cantidad }
     val total = subtotal + COSTO_DELIVERY
@@ -64,14 +69,16 @@ fun DatosEntregaScreen(
             etiqueta = "Dirección de entrega",
             valor = direccion,
             onValorCambia = { direccion = it },
-            placeholder = "Ingresa tu direccion de domicilio"
+            placeholder = "Ingresa tu direccion de domicilio",
+            esError = intentoEnviar && direccion.isBlank()
         )
         Spacer(modifier = Modifier.height(16.dp))
         CampoTexto(
             etiqueta = "Referencia",
             valor = referencia,
             onValorCambia = { referencia = it },
-            placeholder = "Ingresa una referencia de la zona"
+            placeholder = "Ingresa una referencia de la zona",
+            esError = intentoEnviar && referencia.isBlank()
         )
         Spacer(modifier = Modifier.height(16.dp))
         CampoTexto(
@@ -79,7 +86,8 @@ fun DatosEntregaScreen(
             valor = telefono,
             onValorCambia = { telefono = it },
             placeholder = "Ingresa tu teléfono",
-            teclado = KeyboardType.Phone
+            teclado = KeyboardType.Phone,
+            esError = intentoEnviar && telefono.isBlank()
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = "Resumen del pedido", style = MaterialTheme.typography.titleMedium)
@@ -88,7 +96,15 @@ fun DatosEntregaScreen(
         HorizontalDivider()
         FilaResumen(etiqueta = "Total", valor = total)
         Spacer(modifier = Modifier.height(16.dp))
-        BotonPrimario(texto = "Confirmar pedido", onClick = onConfirmarPedido)
+        BotonPrimario(
+            texto = "Confirmar pedido",
+            onClick = {
+                intentoEnviar = true
+                if (formularioValido) {
+                    onConfirmarPedido()
+                }
+            }
+        )
     }
 }
 

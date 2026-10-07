@@ -42,6 +42,7 @@ import com.tecsup.mibodega.ui.theme.VerdeBodega
  * Pantalla 2: Registro de datos (mockup "Cliente").
  * Guarda su propio estado de formulario (remember) porque solo esta
  * pantalla lo necesita. Al enviar, entrega los datos ya listos.
+ * No deja avanzar con campos vacios: los marca en rojo.
  */
 @Composable
 fun RegistroScreen(
@@ -52,6 +53,12 @@ fun RegistroScreen(
     var telefono by remember { mutableStateOf("") }
     var direccion by remember { mutableStateOf("") }
     var referencia by remember { mutableStateOf("") }
+    var intentoEnviar by remember { mutableStateOf(false) }
+
+    val formularioValido = nombre.isNotBlank() &&
+            telefono.isNotBlank() &&
+            direccion.isNotBlank() &&
+            referencia.isNotBlank()
 
     Column(
         modifier = Modifier
@@ -85,7 +92,8 @@ fun RegistroScreen(
             etiqueta = "Nombre completo",
             valor = nombre,
             onValorCambia = { nombre = it },
-            placeholder = "Juan Pérez"
+            placeholder = "Juan Pérez",
+            esError = intentoEnviar && nombre.isBlank()
         )
         Spacer(Modifier.height(16.dp))
 
@@ -94,7 +102,8 @@ fun RegistroScreen(
             valor = telefono,
             onValorCambia = { telefono = it },
             placeholder = "987 654 321",
-            teclado = KeyboardType.Phone
+            teclado = KeyboardType.Phone,
+            esError = intentoEnviar && telefono.isBlank()
         )
         Spacer(Modifier.height(16.dp))
 
@@ -102,7 +111,8 @@ fun RegistroScreen(
             etiqueta = "Dirección de entrega",
             valor = direccion,
             onValorCambia = { direccion = it },
-            placeholder = "Av. Los Olivos 123"
+            placeholder = "Av. Los Olivos 123",
+            esError = intentoEnviar && direccion.isBlank()
         )
         Spacer(Modifier.height(16.dp))
 
@@ -110,14 +120,20 @@ fun RegistroScreen(
             etiqueta = "Referencia",
             valor = referencia,
             onValorCambia = { referencia = it },
-            placeholder = "Frente al parque"
+            placeholder = "Frente al parque",
+            esError = intentoEnviar && referencia.isBlank()
         )
 
         Spacer(Modifier.height(28.dp))
 
         BotonPrimario(
             texto = "Crear cuenta",
-            onClick = { onCrearCuenta(nombre, telefono, direccion, referencia) }
+            onClick = {
+                intentoEnviar = true
+                if (formularioValido) {
+                    onCrearCuenta(nombre, telefono, direccion, referencia)
+                }
+            }
         )
 
         Spacer(Modifier.height(24.dp))
@@ -162,4 +178,3 @@ private fun RegistroPreview() {
         RegistroScreen(onVolver = {}, onCrearCuenta = { _, _, _, _ -> })
     }
 }
-
