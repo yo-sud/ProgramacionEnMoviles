@@ -23,8 +23,11 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,6 +57,12 @@ import com.tecsup.mibodega.ui.theme.BodegaTheme
 import com.tecsup.mibodega.ui.theme.GrisClaro
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 
+private enum class OrdenPrecio {
+    NINGUNO,
+    MENOR_A_MAYOR,
+    MAYOR_A_MENOR
+}
+
 /**
  * Pantalla 3: Inicio / Productos (mockup "Cliente").
  * La más completa: Scaffold (topBar + bottomBar), LazyRow de categorías
@@ -74,12 +83,20 @@ fun InicioScreen(
     var categoriaSeleccionada by remember { mutableStateOf(listaCategorias.first()) }
     var textoBusqueda by remember { mutableStateOf("") }
     var pestanaActual by remember { mutableStateOf(0) }
+    var orden by remember { mutableStateOf(OrdenPrecio.NINGUNO) }
+    var menuOrdenAbierto by remember { mutableStateOf(false) }
 
     val productosFiltrados = productos.filter { producto ->
         val coincideCategoria =
             categoriaSeleccionada == "Todos" || producto.categoria == categoriaSeleccionada
         val coincideBusqueda = producto.nombre.contains(textoBusqueda, ignoreCase = true)
         coincideCategoria && coincideBusqueda
+    }
+
+    val productosOrdenados = when (orden) {
+        OrdenPrecio.NINGUNO -> productosFiltrados
+        OrdenPrecio.MENOR_A_MAYOR -> productosFiltrados.sortedBy { it.precio }
+        OrdenPrecio.MAYOR_A_MENOR -> productosFiltrados.sortedByDescending { it.precio }
     }
 
     Scaffold(
@@ -115,23 +132,67 @@ fun InicioScreen(
                     .padding(paddingInterno)
                     .padding(horizontal = 16.dp)
             ) {
-                OutlinedTextField(
-                    value = textoBusqueda,
-                    onValueChange = { textoBusqueda = it },
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp),
-                    placeholder = { Text("Buscar productos...") },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedContainerColor = GrisClaro,
-                        focusedContainerColor = GrisClaro,
-                        unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-                        focusedBorderColor = VerdeBodega
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = textoBusqueda,
+                        onValueChange = { textoBusqueda = it },
+                        modifier = Modifier.weight(1f),
+                        placeholder = { Text("Buscar productos...") },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedContainerColor = GrisClaro,
+                            focusedContainerColor = GrisClaro,
+                            unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
+                            focusedBorderColor = VerdeBodega
+                        )
                     )
-                )
+                    Box {
+                        IconButton(onClick = { menuOrdenAbierto = true }) {
+                            Icon(
+                                imageVector = Icons.Default.SwapVert,
+                                contentDescription = "Ordenar por precio",
+                                tint = if (orden == OrdenPrecio.NINGUNO) {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                } else {
+                                    VerdeBodega
+                                }
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = menuOrdenAbierto,
+                            onDismissRequest = { menuOrdenAbierto = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Sin ordenar") },
+                                onClick = {
+                                    orden = OrdenPrecio.NINGUNO
+                                    menuOrdenAbierto = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Precio: menor a mayor") },
+                                onClick = {
+                                    orden = OrdenPrecio.MENOR_A_MAYOR
+                                    menuOrdenAbierto = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Precio: mayor a menor") },
+                                onClick = {
+                                    orden = OrdenPrecio.MAYOR_A_MENOR
+                                    menuOrdenAbierto = false
+                                }
+                            )
+                        }
+                    }
+                }
                 Text(
                     text = "Productos destacados",
                     style = MaterialTheme.typography.titleMedium,
@@ -156,14 +217,14 @@ fun InicioScreen(
                     contentPadding = PaddingValues(vertical = 12.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(productosFiltrados) { producto ->
+                    items(productosOrdenados) { producto ->
                         ProductoCard(
                             producto = producto,
                             onClick = { onProductoClick(producto) },
                             onAgregar = { onAgregarProducto(producto) }
                         )
                     }
-                    }
+                }
             }
         } else {
             Box(
