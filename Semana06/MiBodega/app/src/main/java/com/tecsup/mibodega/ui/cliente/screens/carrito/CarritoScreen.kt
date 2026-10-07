@@ -21,12 +21,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ShoppingBasket
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -45,8 +51,9 @@ private const val COSTO_DELIVERY = 4.00
 
 /**
  * Pantalla 5: Mi carrito (mockup "Cliente").
- * No guarda estado propio: el carrito viene de ClienteApp y cualquier
+ * No guarda estado del carrito: viene de ClienteApp y cualquier
  * cambio (sumar, restar, eliminar) se avisa hacia arriba con callbacks.
+ * Solo guarda el producto pendiente de confirmar para eliminar.
  */
 @Composable
 fun CarritoScreen(
@@ -59,6 +66,8 @@ fun CarritoScreen(
 ) {
     val subtotal = carrito.sumOf { it.producto.precio * it.cantidad }
     val total = subtotal + COSTO_DELIVERY
+
+    var productoAEliminar by remember { mutableStateOf<Producto?>(null) }
 
     Column(
         modifier = Modifier
@@ -84,7 +93,7 @@ fun CarritoScreen(
                         item = item,
                         onIncrementar = { onIncrementar(item.producto) },
                         onDecrementar = { onDecrementar(item.producto) },
-                        onEliminar = { onEliminar(item.producto) }
+                        onEliminar = { productoAEliminar = item.producto }
                     )
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 }
@@ -97,6 +106,29 @@ fun CarritoScreen(
                 onContinuarPedido = onContinuarPedido
             )
         }
+    }
+
+    productoAEliminar?.let { producto ->
+        AlertDialog(
+            onDismissRequest = { productoAEliminar = null },
+            title = { Text(text = "Eliminar producto") },
+            text = { Text(text = "Quieres quitar ${producto.nombre} del carrito?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onEliminar(producto)
+                        productoAEliminar = null
+                    }
+                ) {
+                    Text(text = "Eliminar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { productoAEliminar = null }) {
+                    Text(text = "Cancelar")
+                }
+            }
+        )
     }
 }
 
