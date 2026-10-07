@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.tecsup.mibodega.ui.cliente.modelo.DatosCliente
 import com.tecsup.mibodega.ui.cliente.modelo.ItemCarrito
 import com.tecsup.mibodega.ui.componentes.BotonPrimario
 import com.tecsup.mibodega.ui.componentes.CampoTexto
@@ -36,12 +37,14 @@ private const val COSTO_DELIVERY = 4.00
 @Composable
 fun DatosEntregaScreen(
     carrito: List<ItemCarrito>,
+    cliente: DatosCliente,
     onVolver: () -> Unit,
-    onConfirmarPedido: () -> Unit
+    onConfirmarPedido: (DatosCliente) -> Unit
 ) {
-    var direccion by remember { mutableStateOf("") }
-    var referencia by remember { mutableStateOf("") }
-    var telefono by remember { mutableStateOf("") }
+    var nombre by remember { mutableStateOf(cliente.nombre) }
+    var telefono by remember { mutableStateOf(cliente.telefono) }
+    var direccion by remember { mutableStateOf(cliente.direccion) }
+    var referencia by remember { mutableStateOf(cliente.referencia) }
 
     val subtotal = carrito.sumOf { it.producto.precio * it.cantidad }
     val total = subtotal + COSTO_DELIVERY
@@ -61,34 +64,46 @@ fun DatosEntregaScreen(
         }
         Spacer(Modifier.height(16.dp))
         CampoTexto(
-            etiqueta = "Dirección de entrega",
+            etiqueta = "Nombre completo",
+            valor = nombre,
+            onValorCambia = { nombre = it },
+            placeholder = "Juan Pérez"
+        )
+        Spacer(Modifier.height(16.dp))
+        CampoTexto(
+            etiqueta = "Teléfono",
+            valor = telefono,
+            onValorCambia = { telefono = it },
+            placeholder = "987 654 321",
+            teclado = KeyboardType.Phone
+        )
+        Spacer(Modifier.height(16.dp))
+        CampoTexto(
+            etiqueta = "Dirección",
             valor = direccion,
             onValorCambia = { direccion = it },
-            placeholder = "Ingresa tu direccion de domicilio"
+            placeholder = "Av. Los Olivos 123"
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(Modifier.height(16.dp))
         CampoTexto(
             etiqueta = "Referencia",
             valor = referencia,
             onValorCambia = { referencia = it },
-            placeholder = "Ingresa una referencia de la zona"
+            placeholder = "Frente al parque"
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        CampoTexto(
-            etiqueta = "Teléfono de contacto",
-            valor = telefono,
-            onValorCambia = { telefono = it },
-            placeholder = "Ingresa tu teléfono",
-            teclado = KeyboardType.Phone
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(Modifier.height(16.dp))
         Text(text = "Resumen del pedido", style = MaterialTheme.typography.titleMedium)
         FilaResumen(etiqueta = "Subtotal", valor = subtotal)
         FilaResumen(etiqueta = "Costo de delivery", valor = COSTO_DELIVERY)
         HorizontalDivider()
         FilaResumen(etiqueta = "Total", valor = total)
-        Spacer(modifier = Modifier.height(16.dp))
-        BotonPrimario(texto = "Confirmar pedido", onClick = onConfirmarPedido)
+        Spacer(Modifier.height(16.dp))
+        BotonPrimario(
+            texto = "Confirmar pedido",
+            onClick = {
+                onConfirmarPedido(DatosCliente(nombre, telefono, direccion, referencia))
+            }
+        )
     }
 }
 
