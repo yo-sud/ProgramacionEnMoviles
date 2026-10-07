@@ -1,6 +1,5 @@
 package com.tecsup.mibodega.ui.cliente.screens.entrega
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,14 +8,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,29 +28,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.tecsup.mibodega.ui.cliente.modelo.DatosCliente
-import com.tecsup.mibodega.ui.cliente.modelo.ItemCarrito
+import com.tecsup.mibodega.ui.cliente.modelo.MetodoPago
 import com.tecsup.mibodega.ui.componentes.BotonPrimario
 import com.tecsup.mibodega.ui.componentes.CampoTexto
-
-private const val COSTO_DELIVERY = 4.00
+import com.tecsup.mibodega.ui.theme.VerdeBodega
 
 @Composable
 fun DatosEntregaScreen(
-    carrito: List<ItemCarrito>,
     cliente: DatosCliente,
     onVolver: () -> Unit,
-    onConfirmarPedido: (DatosCliente) -> Unit
+    onConfirmarPedido: (DatosCliente, MetodoPago) -> Unit
 ) {
     var nombre by remember { mutableStateOf(cliente.nombre) }
     var telefono by remember { mutableStateOf(cliente.telefono) }
     var direccion by remember { mutableStateOf(cliente.direccion) }
     var referencia by remember { mutableStateOf(cliente.referencia) }
-
-    val subtotal = carrito.sumOf { it.producto.precio * it.cantidad }
-    val total = subtotal + COSTO_DELIVERY
+    var metodoPago by remember { mutableStateOf(MetodoPago.EFECTIVO) }
 
     Column(
         modifier = Modifier
@@ -91,29 +91,44 @@ fun DatosEntregaScreen(
             onValorCambia = { referencia = it },
             placeholder = "Frente al parque"
         )
-        Spacer(Modifier.height(16.dp))
-        Text(text = "Resumen del pedido", style = MaterialTheme.typography.titleMedium)
-        FilaResumen(etiqueta = "Subtotal", valor = subtotal)
-        FilaResumen(etiqueta = "Costo de delivery", valor = COSTO_DELIVERY)
-        HorizontalDivider()
-        FilaResumen(etiqueta = "Total", valor = total)
-        Spacer(Modifier.height(16.dp))
+
+        Spacer(Modifier.height(24.dp))
+        Text(text = "Método de pago", style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.height(8.dp))
+
+        Column(modifier = Modifier.selectableGroup()) {
+            MetodoPago.entries.forEach { metodo ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = metodo == metodoPago,
+                            onClick = { metodoPago = metodo },
+                            role = Role.RadioButton
+                        )
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = metodo == metodoPago,
+                        onClick = null,
+                        colors = RadioButtonDefaults.colors(selectedColor = VerdeBodega)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(text = metodo.etiqueta)
+                }
+            }
+        }
+
+        Spacer(Modifier.height(24.dp))
         BotonPrimario(
             texto = "Confirmar pedido",
             onClick = {
-                onConfirmarPedido(DatosCliente(nombre, telefono, direccion, referencia))
+                onConfirmarPedido(
+                    DatosCliente(nombre, telefono, direccion, referencia),
+                    metodoPago
+                )
             }
         )
-    }
-}
-
-@Composable
-private fun FilaResumen(etiqueta: String, valor: Double) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(text = etiqueta)
-        Text(text = "S/ %.2f".format(valor))
     }
 }
