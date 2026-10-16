@@ -21,20 +21,32 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tecsup.cafecampus.ui.components.AppTopBar
 import com.tecsup.cafecampus.ui.components.ProductoCard
 import com.tecsup.cafecampus.viewmodel.MenuViewModel
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 
 /**
  * EJEMPLO RESUELTO. La View solo observa el ViewModel y le avisa de los clics:
  * no usa DAO, Repository ni lógica de negocio.
  */
 @Composable
-fun MenuScreen(vm: MenuViewModel, onProducto: (Int) -> Unit) {
+fun MenuScreen(
+    vm: MenuViewModel,
+    onProducto: (Int) -> Unit,
+    onSalir: () -> Unit = {}
+) {
     val productos by vm.productosVisibles.collectAsStateWithLifecycle()
     val categorias by vm.categorias.collectAsStateWithLifecycle()
     val categoria by vm.categoria.collectAsStateWithLifecycle()
 
     Column(Modifier.fillMaxSize()) {
         // TODO (Paso 7): agrega aquí el botón de la bolsa con el contador del carrito
-        AppTopBar("CafeCampus")
+        AppTopBar("CafeCampus", acciones = {
+            IconButton(onClick = onSalir) {
+                Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión")
+            }
+        })
 
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
