@@ -28,6 +28,9 @@ class SesionViewModel(
     val modoOscuro: StateFlow<Boolean> = prefs.modoOscuro
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    val recibirPedidos: StateFlow<Boolean> = prefs.recibirPedidos
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
     init {
         viewModelScope.launch { restaurar() }
     }

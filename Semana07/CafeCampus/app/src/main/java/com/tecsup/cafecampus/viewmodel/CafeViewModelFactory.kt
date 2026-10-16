@@ -11,6 +11,7 @@ class CafeViewModelFactory(private val app: CafeApp) : ViewModelProvider.Factory
         val vm: ViewModel = when {
             modelClass.isAssignableFrom(MenuViewModel::class.java) -> MenuViewModel(app.repo)
             modelClass.isAssignableFrom(SesionViewModel::class.java) -> SesionViewModel(app.repo, app.prefs)
+            modelClass.isAssignableFrom(PedidosClienteViewModel::class.java) -> PedidosClienteViewModel(app.repo)
             else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
         }
         return vm as T
