@@ -1,0 +1,66 @@
+package com.tecsup.cafecampus.viewmodel
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.tecsup.cafecampus.data.local.entity.Producto
+import com.tecsup.cafecampus.data.repository.CafeRepository
+import com.tecsup.cafecampus.model.ItemCarrito
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+
+class MenuViewModel(repo: CafeRepository) : ViewModel() {
+
+    // Flow (Room) -> StateFlow con stateIn: la View solo observa
+    val productos: StateFlow<List<Producto>> = repo.observarProductos()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    // ---- Filtro por categoría ----
+    private val _categoria = MutableStateFlow<String?>(null)
+    val categoria: StateFlow<String?> = _categoria.asStateFlow()
+
+    val categorias: StateFlow<List<String>> = productos
+        .map { lista -> lista.map { it.categoria }.distinct().sorted() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val productosVisibles: StateFlow<List<Producto>> = combine(productos, _categoria) { lista, cat ->
+        if (cat == null) lista else lista.filter { it.categoria == cat }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun elegirCategoria(c: String?) { _categoria.value = c }
+
+    // ---- Carrito (en memoria; sobrevive a rotaciones porque vive en el ViewModel) ----
+    private val _carrito = MutableStateFlow<List<ItemCarrito>>(emptyList())
+    val carrito: StateFlow<List<ItemCarrito>> = _carrito.asStateFlow()
+
+    val cantidadItems: StateFlow<Int> = _carrito
+        .map { lista -> lista.sumOf { it.cantidad } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    /** Si el producto ya está en el carrito suma la cantidad en vez de duplicar la línea. */
+    fun agregar(producto: Producto, cantidad: Int, nota: String = "") {
+        if (!producto.disponible || cantidad < 1) return
+        _carrito.update { lista ->
+            if (lista.none { it.producto.id == producto.id }) {
+                lista + ItemCarrito(producto, cantidad, nota)
+            } else {
+                lista.map {
+                    if (it.producto.id == producto.id)
+                        it.copy(cantidad = it.cantidad + cantidad, nota = nota.ifBlank { it.nota })
+                    else it
+                }
+            }
+        }
+    }
+
+    fun quitar(productoId: Int) { _carrito.update { lista -> lista.filter { it.producto.id != productoId } } }
+
+    fun vaciar() { _carrito.value = emptyList() }
+
+    fun total(): Double = _carrito.value.sumOf { it.subtotal }
+}

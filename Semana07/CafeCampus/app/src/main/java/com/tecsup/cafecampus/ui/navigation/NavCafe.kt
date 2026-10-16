@@ -18,12 +18,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.tecsup.cafecampus.CafeApp
 import com.tecsup.cafecampus.model.Rol
+import com.tecsup.cafecampus.ui.cliente.DetalleProductoScreen
 import com.tecsup.cafecampus.ui.cliente.LoginScreen
 import com.tecsup.cafecampus.ui.cliente.MenuScreen
 import com.tecsup.cafecampus.ui.cliente.SplashScreen
@@ -57,7 +60,7 @@ fun NavCafe() {
     fun grafoDe(r: Rol) = if (r == Rol.ADMIN) Rutas.GRAFO_ADMIN else Rutas.GRAFO_CLIENTE
 
     fun salir() {
-        // TODO (Paso 7): menuVm.vaciar() para limpiar el carrito al salir
+        menuVm.vaciar()
         sesionVm.cerrarSesion {
             nav.navigate(Rutas.LOGIN) { popUpTo(nav.graph.id) { inclusive = true } }
         }
@@ -75,6 +78,7 @@ fun NavCafe() {
                     SplashScreen()
                     LaunchedEffect(Unit) {
                         delay(900)
+                        // Si ya hay perfil guardado salta el login y va directo a su pantalla principal
                         val destino = when (sesionVm.restaurar()) {
                             Rol.ADMIN -> Rutas.GRAFO_ADMIN
                             Rol.CLIENTE -> Rutas.GRAFO_CLIENTE
@@ -94,11 +98,22 @@ fun NavCafe() {
                     composable(Rutas.MENU) {
                         MenuScreen(
                             vm = menuVm,
-                            onProducto = { /* TODO (Paso 7): nav.navigate(Rutas.producto(it)) */ },
+                            onProducto = { nav.navigate(Rutas.producto(it)) },
+                            // TODO (Paso 8): onBolsa = { nav.navigate(Rutas.CONFIRMAR) },
                             onSalir = { salir() }
                         )
                     }
-                    // TODO (Paso 7): Rutas.PRODUCTO · (Paso 8): CONFIRMAR, SEGUIMIENTO, MIS_PEDIDOS · (Paso 11): PERFIL
+                    composable(
+                        route = Rutas.PRODUCTO,
+                        arguments = listOf(navArgument(Rutas.ARG_ID) { type = NavType.IntType })
+                    ) { entrada ->
+                        DetalleProductoScreen(
+                            vm = menuVm,
+                            productoId = entrada.arguments?.getInt(Rutas.ARG_ID) ?: 0,
+                            onVolver = { nav.popBackStack() }
+                        )
+                    }
+                    // TODO (Paso 8): CONFIRMAR, SEGUIMIENTO, MIS_PEDIDOS · (Paso 11): PERFIL
                 }
 
                 // Pantalla provisional: el Panel real se construye en el Paso 9
