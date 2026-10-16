@@ -1,13 +1,9 @@
 package com.tecsup.cafecampus.ui.navigation
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -18,11 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -34,6 +28,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.cafecampus.CafeApp
 import com.tecsup.cafecampus.model.Rol
+import com.tecsup.cafecampus.ui.admin.PanelScreen
+import com.tecsup.cafecampus.ui.admin.PedidosAdminScreen
 import com.tecsup.cafecampus.ui.cliente.ConfirmarPedidoScreen
 import com.tecsup.cafecampus.ui.cliente.DetalleProductoScreen
 import com.tecsup.cafecampus.ui.cliente.LoginScreen
@@ -41,10 +37,11 @@ import com.tecsup.cafecampus.ui.cliente.MenuScreen
 import com.tecsup.cafecampus.ui.cliente.MisPedidosScreen
 import com.tecsup.cafecampus.ui.cliente.SeguimientoScreen
 import com.tecsup.cafecampus.ui.cliente.SplashScreen
-import com.tecsup.cafecampus.ui.components.CafeButton
 import com.tecsup.cafecampus.ui.theme.CafeTheme
 import com.tecsup.cafecampus.viewmodel.CafeViewModelFactory
 import com.tecsup.cafecampus.viewmodel.MenuViewModel
+import com.tecsup.cafecampus.viewmodel.PanelAdminViewModel
+import com.tecsup.cafecampus.viewmodel.PedidosAdminViewModel
 import com.tecsup.cafecampus.viewmodel.PedidosClienteViewModel
 import com.tecsup.cafecampus.viewmodel.SesionViewModel
 import kotlinx.coroutines.delay
@@ -65,24 +62,35 @@ fun NavCafe() {
     val menuVm: MenuViewModel = viewModel(factory = factory)
     val sesionVm: SesionViewModel = viewModel(factory = factory)
     val pedidosClienteVm: PedidosClienteViewModel = viewModel(factory = factory)
-    // TODO (Paso 9): PanelAdminViewModel y PedidosAdminViewModel
+    val panelVm: PanelAdminViewModel = viewModel(factory = factory)
+    val pedidosAdminVm: PedidosAdminViewModel = viewModel(factory = factory)
     // TODO (Paso 10): MenuAdminViewModel
 
     val usuario by sesionVm.usuarioActual.collectAsStateWithLifecycle()
     val oscuro by sesionVm.modoOscuro.collectAsStateWithLifecycle()
     val rol = usuario?.let { Rol.valueOf(it.rol) } ?: Rol.CLIENTE
 
+    // El ViewModel de pedidos necesita saber quién es el cliente actual
     LaunchedEffect(usuario?.id) { usuario?.let { pedidosClienteVm.setCliente(it.id) } }
 
+    // ---- Barra inferior: solo se muestra en las pestañas principales ----
     val tabsCliente = listOf(
         ItemTab(Rutas.MENU, "Menú", Icons.Filled.Restaurant),
         ItemTab(Rutas.MIS_PEDIDOS, "Pedidos", Icons.AutoMirrored.Filled.ReceiptLong)
         // TODO (Paso 11): ItemTab(Rutas.PERFIL, "Perfil", Icons.Filled.Person)
     )
-    // TODO (Pasos 9-11): tabsAdmin = Panel, Pedidos, Menú, Ajustes
+    val tabsAdmin = listOf(
+        ItemTab(Rutas.PANEL, "Panel", Icons.Filled.Dashboard),
+        ItemTab(Rutas.PEDIDOS_ADMIN, "Pedidos", Icons.AutoMirrored.Filled.ReceiptLong)
+        // TODO (Pasos 10-11): Menú (MENU_ADMIN) y Ajustes (AJUSTES)
+    )
     val entrada by nav.currentBackStackEntryAsState()
     val ruta = entrada?.destination?.route
-    val tabs = if (tabsCliente.any { it.ruta == ruta }) tabsCliente else emptyList()
+    val tabs = when {
+        tabsCliente.any { it.ruta == ruta } -> tabsCliente
+        tabsAdmin.any { it.ruta == ruta } -> tabsAdmin
+        else -> emptyList()
+    }
 
     fun irATab(destino: String, inicio: String) {
         nav.navigate(destino) {
@@ -143,6 +151,7 @@ fun NavCafe() {
                     })
                 }
 
+                // ---------- Perfil Estudiante ----------
                 navigation(startDestination = Rutas.MENU, route = Rutas.GRAFO_CLIENTE) {
                     composable(Rutas.MENU) {
                         MenuScreen(
@@ -194,19 +203,22 @@ fun NavCafe() {
                     // TODO (Paso 11): composable(Rutas.PERFIL)
                 }
 
-                // Pantalla provisional: el Panel real se construye en el Paso 9
+                // ---------- Perfil Administrador ----------
                 navigation(startDestination = Rutas.PANEL, route = Rutas.GRAFO_ADMIN) {
                     composable(Rutas.PANEL) {
-                        Column(
-                            modifier = Modifier.fillMaxSize().padding(24.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text("Panel del administrador (se construye en el Paso 9)")
-                            Spacer(Modifier.height(16.dp))
-                            CafeButton("Cerrar sesión", onClick = { salir() })
-                        }
+                        PanelScreen(
+                            vm = panelVm,
+                            onVerPedidos = { irATab(Rutas.PEDIDOS_ADMIN, Rutas.PANEL) },
+                            onSalir = { salir() }
+                        )
                     }
+                    composable(Rutas.PEDIDOS_ADMIN) {
+                        PedidosAdminScreen(
+                            vm = pedidosAdminVm,
+                            onDetalle = { /* TODO (Paso 10): nav.navigate(Rutas.pedidoAdmin(it)) */ }
+                        )
+                    }
+                    // TODO (Paso 10): PEDIDO_ADMIN, MENU_ADMIN, FORMULARIO · (Paso 11): AJUSTES
                 }
             }
         }
