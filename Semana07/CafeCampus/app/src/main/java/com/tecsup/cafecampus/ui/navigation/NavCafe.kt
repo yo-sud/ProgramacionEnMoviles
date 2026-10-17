@@ -28,6 +28,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.cafecampus.CafeApp
 import com.tecsup.cafecampus.model.Rol
+import com.tecsup.cafecampus.ui.admin.DetallePedidoAdminScreen
+import com.tecsup.cafecampus.ui.admin.FormularioProductoScreen
+import com.tecsup.cafecampus.ui.admin.MenuAdminScreen
 import com.tecsup.cafecampus.ui.admin.PanelScreen
 import com.tecsup.cafecampus.ui.admin.PedidosAdminScreen
 import com.tecsup.cafecampus.ui.cliente.ConfirmarPedidoScreen
@@ -39,6 +42,7 @@ import com.tecsup.cafecampus.ui.cliente.SeguimientoScreen
 import com.tecsup.cafecampus.ui.cliente.SplashScreen
 import com.tecsup.cafecampus.ui.theme.CafeTheme
 import com.tecsup.cafecampus.viewmodel.CafeViewModelFactory
+import com.tecsup.cafecampus.viewmodel.MenuAdminViewModel
 import com.tecsup.cafecampus.viewmodel.MenuViewModel
 import com.tecsup.cafecampus.viewmodel.PanelAdminViewModel
 import com.tecsup.cafecampus.viewmodel.PedidosAdminViewModel
@@ -64,7 +68,7 @@ fun NavCafe() {
     val pedidosClienteVm: PedidosClienteViewModel = viewModel(factory = factory)
     val panelVm: PanelAdminViewModel = viewModel(factory = factory)
     val pedidosAdminVm: PedidosAdminViewModel = viewModel(factory = factory)
-    // TODO (Paso 10): MenuAdminViewModel
+    val menuAdminVm: MenuAdminViewModel = viewModel(factory = factory)
 
     val usuario by sesionVm.usuarioActual.collectAsStateWithLifecycle()
     val oscuro by sesionVm.modoOscuro.collectAsStateWithLifecycle()
@@ -81,8 +85,9 @@ fun NavCafe() {
     )
     val tabsAdmin = listOf(
         ItemTab(Rutas.PANEL, "Panel", Icons.Filled.Dashboard),
-        ItemTab(Rutas.PEDIDOS_ADMIN, "Pedidos", Icons.AutoMirrored.Filled.ReceiptLong)
-        // TODO (Pasos 10-11): Menú (MENU_ADMIN) y Ajustes (AJUSTES)
+        ItemTab(Rutas.PEDIDOS_ADMIN, "Pedidos", Icons.AutoMirrored.Filled.ReceiptLong),
+        ItemTab(Rutas.MENU_ADMIN, "Menú", Icons.Filled.Restaurant)
+        // TODO (Paso 11): ItemTab(Rutas.AJUSTES, "Ajustes", Icons.Filled.Settings)
     )
     val entrada by nav.currentBackStackEntryAsState()
     val ruta = entrada?.destination?.route
@@ -215,10 +220,37 @@ fun NavCafe() {
                     composable(Rutas.PEDIDOS_ADMIN) {
                         PedidosAdminScreen(
                             vm = pedidosAdminVm,
-                            onDetalle = { /* TODO (Paso 10): nav.navigate(Rutas.pedidoAdmin(it)) */ }
+                            onDetalle = { nav.navigate(Rutas.pedidoAdmin(it)) }
                         )
                     }
-                    // TODO (Paso 10): PEDIDO_ADMIN, MENU_ADMIN, FORMULARIO · (Paso 11): AJUSTES
+                    composable(
+                        route = Rutas.PEDIDO_ADMIN,
+                        arguments = listOf(navArgument(Rutas.ARG_ID) { type = NavType.IntType })
+                    ) { entradaNav ->
+                        DetallePedidoAdminScreen(
+                            vm = pedidosAdminVm,
+                            pedidoId = entradaNav.arguments?.getInt(Rutas.ARG_ID) ?: 0,
+                            onVolver = { nav.popBackStack() }
+                        )
+                    }
+                    composable(Rutas.MENU_ADMIN) {
+                        MenuAdminScreen(
+                            vm = menuAdminVm,
+                            onNuevo = { nav.navigate(Rutas.formulario(0)) },
+                            onEditar = { nav.navigate(Rutas.formulario(it)) }
+                        )
+                    }
+                    composable(
+                        route = Rutas.FORMULARIO,
+                        arguments = listOf(navArgument(Rutas.ARG_ID) { type = NavType.IntType })
+                    ) { entradaNav ->
+                        FormularioProductoScreen(
+                            vm = menuAdminVm,
+                            productoId = entradaNav.arguments?.getInt(Rutas.ARG_ID) ?: 0,
+                            onListo = { nav.popBackStack() }
+                        )
+                    }
+                    // TODO (Paso 11): composable(Rutas.AJUSTES)
                 }
             }
         }

@@ -14,6 +14,7 @@ class CafeViewModelFactory(private val app: CafeApp) : ViewModelProvider.Factory
             modelClass.isAssignableFrom(PedidosClienteViewModel::class.java) -> PedidosClienteViewModel(app.repo)
             modelClass.isAssignableFrom(PanelAdminViewModel::class.java) -> PanelAdminViewModel(app.repo)
             modelClass.isAssignableFrom(PedidosAdminViewModel::class.java) -> PedidosAdminViewModel(app.repo)
+            modelClass.isAssignableFrom(MenuAdminViewModel::class.java) -> MenuAdminViewModel(app.repo)
             else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
         }
         return vm as T
