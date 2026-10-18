@@ -28,11 +28,23 @@ class MenuViewModel(repo: CafeRepository) : ViewModel() {
         .map { lista -> lista.map { it.categoria }.distinct().sorted() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val productosVisibles: StateFlow<List<Producto>> = combine(productos, _categoria) { lista, cat ->
-        if (cat == null) lista else lista.filter { it.categoria == cat }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
     fun elegirCategoria(c: String?) { _categoria.value = c }
+
+    // ---- Búsqueda por nombre ----
+    private val _busqueda = MutableStateFlow("")
+    val busqueda: StateFlow<String> = _busqueda.asStateFlow()
+
+    fun buscar(texto: String) { _busqueda.value = texto }
+
+    /** Productos que cumplen a la vez la categoría elegida y el texto buscado. La lógica vive aquí, no en la View. */
+    val productosVisibles: StateFlow<List<Producto>> =
+        combine(productos, _categoria, _busqueda) { lista, cat, texto ->
+            val q = texto.trim()
+            lista.filter { p ->
+                (cat == null || p.categoria == cat) &&
+                        (q.isEmpty() || p.nombre.contains(q, ignoreCase = true))
+            }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     // ---- Carrito (en memoria; sobrevive a rotaciones porque vive en el ViewModel) ----
     private val _carrito = MutableStateFlow<List<ItemCarrito>>(emptyList())
