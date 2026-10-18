@@ -27,14 +27,15 @@ class SesionViewModel(
 
     val modoOscuro: StateFlow<Boolean> = prefs.modoOscuro
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
-
     val recibirPedidos: StateFlow<Boolean> = prefs.recibirPedidos
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     init {
+        // Si la app se recrea (p. ej. el sistema mató el proceso) se recupera el perfil guardado.
         viewModelScope.launch { restaurar() }
     }
 
+    /** Modo práctica: ambos perfiles usan estas cuentas de prueba para restaurar / cambiar de perfil. */
     private fun credencialesDemo(rol: Rol): Pair<String, String> =
         if (rol == Rol.ADMIN) "admin@cafe.test" to "admin" else "juan@campus.test" to "1234"
 
@@ -79,4 +80,20 @@ class SesionViewModel(
             onListo()
         }
     }
+
+    /** Guarda el otro perfil y avisa a quien llama para que navegue a su grafo. */
+    fun cambiarPerfil(onListo: (Rol) -> Unit) {
+        viewModelScope.launch {
+            val destino = if (_usuario.value?.rol == Rol.ADMIN.name) Rol.CLIENTE else Rol.ADMIN
+            val (correo, clave) = credencialesDemo(destino)
+            val u = repo.login(correo, clave) ?: return@launch
+            prefs.guardarPerfil(destino)
+            _usuario.value = u
+            onListo(destino)
+        }
+    }
+
+    fun setModoOscuro(b: Boolean) { viewModelScope.launch { prefs.guardarModoOscuro(b) } }
+
+    fun setRecibirPedidos(b: Boolean) { viewModelScope.launch { prefs.guardarRecibirPedidos(b) } }
 }

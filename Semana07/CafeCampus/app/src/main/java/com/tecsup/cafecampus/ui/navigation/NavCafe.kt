@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -28,6 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.cafecampus.CafeApp
 import com.tecsup.cafecampus.model.Rol
+import com.tecsup.cafecampus.ui.admin.AjustesScreen
 import com.tecsup.cafecampus.ui.admin.DetallePedidoAdminScreen
 import com.tecsup.cafecampus.ui.admin.FormularioProductoScreen
 import com.tecsup.cafecampus.ui.admin.MenuAdminScreen
@@ -80,14 +83,14 @@ fun NavCafe() {
     // ---- Barra inferior: solo se muestra en las pestañas principales ----
     val tabsCliente = listOf(
         ItemTab(Rutas.MENU, "Menú", Icons.Filled.Restaurant),
-        ItemTab(Rutas.MIS_PEDIDOS, "Pedidos", Icons.AutoMirrored.Filled.ReceiptLong)
-        // TODO (Paso 11): ItemTab(Rutas.PERFIL, "Perfil", Icons.Filled.Person)
+        ItemTab(Rutas.MIS_PEDIDOS, "Pedidos", Icons.AutoMirrored.Filled.ReceiptLong),
+        ItemTab(Rutas.PERFIL, "Perfil", Icons.Filled.Person)
     )
     val tabsAdmin = listOf(
         ItemTab(Rutas.PANEL, "Panel", Icons.Filled.Dashboard),
         ItemTab(Rutas.PEDIDOS_ADMIN, "Pedidos", Icons.AutoMirrored.Filled.ReceiptLong),
-        ItemTab(Rutas.MENU_ADMIN, "Menú", Icons.Filled.Restaurant)
-        // TODO (Paso 11): ItemTab(Rutas.AJUSTES, "Ajustes", Icons.Filled.Settings)
+        ItemTab(Rutas.MENU_ADMIN, "Menú", Icons.Filled.Restaurant),
+        ItemTab(Rutas.AJUSTES, "Ajustes", Icons.Filled.Settings)
     )
     val entrada by nav.currentBackStackEntryAsState()
     val ruta = entrada?.destination?.route
@@ -112,6 +115,12 @@ fun NavCafe() {
         sesionVm.cerrarSesion {
             nav.navigate(Rutas.LOGIN) { popUpTo(nav.graph.id) { inclusive = true } }
         }
+    }
+
+    /** Cambio de perfil: va al grafo del otro perfil y limpia TODA la pila de navegación. */
+    fun cambiarDePerfil(destino: Rol) {
+        menuVm.vaciar()
+        nav.navigate(grafoDe(destino)) { popUpTo(nav.graph.id) { inclusive = true } }
     }
 
     CafeTheme(rol = rol, oscuro = oscuro) {
@@ -205,7 +214,13 @@ fun NavCafe() {
                             onPedido = { nav.navigate(Rutas.seguimiento(it)) }
                         )
                     }
-                    // TODO (Paso 11): composable(Rutas.PERFIL)
+                    composable(Rutas.PERFIL) {
+                        AjustesScreen(
+                            vm = sesionVm,
+                            onCambioPerfil = { cambiarDePerfil(it) },
+                            onCerrarSesion = { salir() }
+                        )
+                    }
                 }
 
                 // ---------- Perfil Administrador ----------
@@ -250,7 +265,13 @@ fun NavCafe() {
                             onListo = { nav.popBackStack() }
                         )
                     }
-                    // TODO (Paso 11): composable(Rutas.AJUSTES)
+                    composable(Rutas.AJUSTES) {
+                        AjustesScreen(
+                            vm = sesionVm,
+                            onCambioPerfil = { cambiarDePerfil(it) },
+                            onCerrarSesion = { salir() }
+                        )
+                    }
                 }
             }
         }
