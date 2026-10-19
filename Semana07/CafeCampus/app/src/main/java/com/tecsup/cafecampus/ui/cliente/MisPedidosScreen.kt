@@ -20,15 +20,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tecsup.cafecampus.data.local.relation.PedidoConDetalle
 import com.tecsup.cafecampus.model.EstadoPedido
 import com.tecsup.cafecampus.ui.components.AppTopBar
+import com.tecsup.cafecampus.ui.components.CafeButton
 import com.tecsup.cafecampus.ui.components.PedidoCard
 import com.tecsup.cafecampus.ui.etiquetaPago
 import com.tecsup.cafecampus.ui.resumenLineas
 import com.tecsup.cafecampus.viewmodel.PedidosClienteViewModel
 
 @Composable
-fun MisPedidosScreen(vm: PedidosClienteViewModel, onPedido: (Int) -> Unit) {
+fun MisPedidosScreen(
+    vm: PedidosClienteViewModel,
+    onPedido: (Int) -> Unit,
+    onRepetir: (PedidoConDetalle) -> Unit = {}
+) {
     val activos by vm.activos.collectAsStateWithLifecycle()
     val historial by vm.historial.collectAsStateWithLifecycle()
     var tab by rememberSaveable { mutableIntStateOf(0) }
@@ -60,7 +66,13 @@ fun MisPedidosScreen(vm: PedidosClienteViewModel, onPedido: (Int) -> Unit) {
                         lineas = p.resumenLineas(),
                         total = p.pedido.total,
                         subtitulo = "Recojo: ${p.pedido.horaRecojo} · ${p.pedido.pago.etiquetaPago()}",
-                        onClick = { onPedido(p.pedido.id) }
+                        onClick = { onPedido(p.pedido.id) },
+                        acciones = {
+                            // Solo en el Historial
+                            if (tab == 1) {
+                                CafeButton("Repetir pedido", secundario = true, onClick = { onRepetir(p) })
+                            }
+                        }
                     )
                 }
             }

@@ -1,5 +1,6 @@
 package com.tecsup.cafecampus.ui.navigation
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
@@ -79,6 +80,20 @@ fun NavCafe() {
 
     // El ViewModel de pedidos necesita saber quién es el cliente actual
     LaunchedEffect(usuario?.id) { usuario?.let { pedidosClienteVm.setCliente(it.id) } }
+
+    // Repetir pedido: el ViewModel avisa el resultado; aquí se informa y se navega al carrito
+    val contexto = LocalContext.current
+    LaunchedEffect(Unit) {
+        menuVm.repeticion.collect { r ->
+            val texto = when {
+                r.agregados == 0 -> "Ninguno de esos productos está disponible ahora"
+                r.omitidos > 0 -> "Se agregaron ${r.agregados} producto(s). ${r.omitidos} ya no está(n) disponible(s)"
+                else -> "Productos agregados a tu bolsa"
+            }
+            Toast.makeText(contexto, texto, Toast.LENGTH_LONG).show()
+            if (r.agregados > 0) nav.navigate(Rutas.CONFIRMAR)
+        }
+    }
 
     // ---- Barra inferior: solo se muestra en las pestañas principales ----
     val tabsCliente = listOf(
@@ -211,7 +226,8 @@ fun NavCafe() {
                     composable(Rutas.MIS_PEDIDOS) {
                         MisPedidosScreen(
                             vm = pedidosClienteVm,
-                            onPedido = { nav.navigate(Rutas.seguimiento(it)) }
+                            onPedido = { nav.navigate(Rutas.seguimiento(it)) },
+                            onRepetir = { menuVm.repetirPedido(it.detalles) }
                         )
                     }
                     composable(Rutas.PERFIL) {

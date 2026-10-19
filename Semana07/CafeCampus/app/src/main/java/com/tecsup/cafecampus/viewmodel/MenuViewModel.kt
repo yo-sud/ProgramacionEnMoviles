@@ -2,19 +2,28 @@ package com.tecsup.cafecampus.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tecsup.cafecampus.data.local.entity.DetallePedido
 import com.tecsup.cafecampus.data.local.entity.Producto
 import com.tecsup.cafecampus.data.repository.CafeRepository
 import com.tecsup.cafecampus.model.ItemCarrito
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class MenuViewModel(repo: CafeRepository) : ViewModel() {
+/** Resultado de volver a cargar un pedido anterior en el carrito. */
+data class ResultadoRepetir(val agregados: Int, val omitidos: Int)
+
+class MenuViewModel(private val repo: CafeRepository) : ViewModel() {
 
     // Flow (Room) -> StateFlow con stateIn: la View solo observa
     val productos: StateFlow<List<Producto>> = repo.observarProductos()
@@ -75,4 +84,31 @@ class MenuViewModel(repo: CafeRepository) : ViewModel() {
     fun vaciar() { _carrito.value = emptyList() }
 
     fun total(): Double = _carrito.value.sumOf { it.subtotal }
+
+    // ---- Repetir pedido ----
+    // Evento de una sola vez: la navegación lo recibe y decide qué mostrar.
+    private val _repeticion = Channel<ResultadoRepetir>(Channel.BUFFERED)
+    val repeticion: Flow<ResultadoRepetir> = _repeticion.receiveAsFlow()
+
+    /**
+     * Vuelve a cargar al carrito las líneas de un pedido anterior, con el precio ACTUAL del menú.
+     * Los productos que ya no existen o están agotados se omiten y se informa cuántos fueron.
+     */
+    fun repetirPedido(detalles: List<DetallePedido>) {
+        viewModelScope.launch {
+            val actuales = repo.observarProductos().first().associateBy { it.id }
+            var agregados = 0
+            var omitidos = 0
+            detalles.forEach { d ->
+                val producto = actuales[d.productoId]
+                if (producto != null && producto.disponible) {
+                    agregar(producto, d.cantidad)
+                    agregados++
+                } else {
+                    omitidos++
+                }
+            }
+            _repeticion.send(ResultadoRepetir(agregados, omitidos))
+        }
+    }
 }
