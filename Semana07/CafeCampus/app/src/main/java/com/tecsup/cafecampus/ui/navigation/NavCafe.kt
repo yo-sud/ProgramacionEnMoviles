@@ -30,6 +30,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.cafecampus.CafeApp
 import com.tecsup.cafecampus.model.Rol
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import com.tecsup.cafecampus.ui.admin.AjustesScreen
 import com.tecsup.cafecampus.ui.admin.DetallePedidoAdminScreen
 import com.tecsup.cafecampus.ui.admin.FormularioProductoScreen
@@ -116,6 +119,7 @@ fun NavCafe() {
             nav.navigate(Rutas.LOGIN) { popUpTo(nav.graph.id) { inclusive = true } }
         }
     }
+    fun irALogin() { nav.navigate(Rutas.LOGIN) }
 
     /** Cambio de perfil: va al grafo del otro perfil y limpia TODA la pila de navegación. */
     fun cambiarDePerfil(destino: Rol) {
@@ -146,22 +150,30 @@ fun NavCafe() {
                 modifier = Modifier.padding(padding)
             ) {
                 composable(Rutas.SPLASH) {
-                    SplashScreen()
+                    // Los botones aparecen solo si NO hay sesión guardada
+                    var mostrarAcciones by rememberSaveable { mutableStateOf(false) }
+                    SplashScreen(
+                        mostrarAcciones = mostrarAcciones,
+                        onComenzar = { irALogin() },
+                        onTengoCuenta = { irALogin() }
+                    )
                     LaunchedEffect(Unit) {
+                        if (mostrarAcciones) return@LaunchedEffect
                         delay(900)
-                        // Si ya hay perfil guardado salta el login y va directo a su pantalla principal
+                        // Si ya hay perfil guardado salta directo a su pantalla principal
                         val destino = when (sesionVm.restaurar()) {
                             Rol.ADMIN -> Rutas.GRAFO_ADMIN
                             Rol.CLIENTE -> Rutas.GRAFO_CLIENTE
-                            null -> Rutas.LOGIN
+                            null -> null
                         }
-                        nav.navigate(destino) { popUpTo(Rutas.SPLASH) { inclusive = true } }
+                        if (destino == null) mostrarAcciones = true
+                        else nav.navigate(destino) { popUpTo(Rutas.SPLASH) { inclusive = true } }
                     }
                 }
 
                 composable(Rutas.LOGIN) {
                     LoginScreen(vm = sesionVm, onIngreso = { r ->
-                        nav.navigate(grafoDe(r)) { popUpTo(Rutas.LOGIN) { inclusive = true } }
+                        nav.navigate(grafoDe(r)) { popUpTo(nav.graph.id) { inclusive = true } }
                     })
                 }
 
