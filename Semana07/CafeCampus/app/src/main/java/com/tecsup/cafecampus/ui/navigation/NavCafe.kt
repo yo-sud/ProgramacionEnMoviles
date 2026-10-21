@@ -1,5 +1,6 @@
 package com.tecsup.cafecampus.ui.navigation
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
@@ -68,6 +69,7 @@ fun NavCafe() {
     val app = LocalContext.current.applicationContext as CafeApp
     val factory = remember { CafeViewModelFactory(app) }
     val nav = rememberNavController()
+    val contexto = LocalContext.current
 
     val menuVm: MenuViewModel = viewModel(factory = factory)
     val sesionVm: SesionViewModel = viewModel(factory = factory)
@@ -172,9 +174,19 @@ fun NavCafe() {
                 }
 
                 composable(Rutas.LOGIN) {
-                    LoginScreen(vm = sesionVm, onIngreso = { r ->
-                        nav.navigate(grafoDe(r)) { popUpTo(nav.graph.id) { inclusive = true } }
-                    })
+                    LoginScreen(
+                        vm = sesionVm,
+                        onIngreso = { r ->
+                            nav.navigate(grafoDe(r)) { popUpTo(nav.graph.id) { inclusive = true } }
+                        },
+                        onOlvide = {
+                            Toast.makeText(contexto, "Recuperar contraseña estará disponible próximamente", Toast.LENGTH_SHORT).show()
+                        },
+                        onRegistro = {
+                            Toast.makeText(contexto, "El registro estará disponible próximamente", Toast.LENGTH_SHORT).show()
+                        }
+
+                    )
                 }
 
                 // ---------- Perfil Estudiante ----------
