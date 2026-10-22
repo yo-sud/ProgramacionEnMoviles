@@ -1,25 +1,38 @@
 package com.tecsup.cafecampus.ui.navigation
 
 import android.widget.Toast
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
 import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -31,9 +44,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.cafecampus.CafeApp
 import com.tecsup.cafecampus.model.Rol
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import com.tecsup.cafecampus.ui.admin.AjustesScreen
 import com.tecsup.cafecampus.ui.admin.DetallePedidoAdminScreen
 import com.tecsup.cafecampus.ui.admin.FormularioProductoScreen
@@ -47,6 +57,7 @@ import com.tecsup.cafecampus.ui.cliente.MenuScreen
 import com.tecsup.cafecampus.ui.cliente.MisPedidosScreen
 import com.tecsup.cafecampus.ui.cliente.SeguimientoScreen
 import com.tecsup.cafecampus.ui.cliente.SplashScreen
+import com.tecsup.cafecampus.ui.primerNombre
 import com.tecsup.cafecampus.ui.theme.CafeTheme
 import com.tecsup.cafecampus.viewmodel.CafeViewModelFactory
 import com.tecsup.cafecampus.viewmodel.MenuAdminViewModel
@@ -57,7 +68,12 @@ import com.tecsup.cafecampus.viewmodel.PedidosClienteViewModel
 import com.tecsup.cafecampus.viewmodel.SesionViewModel
 import kotlinx.coroutines.delay
 
-private data class ItemTab(val ruta: String, val titulo: String, val icono: ImageVector)
+private data class ItemTab(
+    val ruta: String,
+    val titulo: String,
+    val icono: ImageVector,
+    val iconoActivo: ImageVector = icono
+)
 
 /**
  * Grafo de navegación (archivo GUIADO). Los ViewModels se crean UNA vez aquí
@@ -67,9 +83,9 @@ private data class ItemTab(val ruta: String, val titulo: String, val icono: Imag
 @Composable
 fun NavCafe() {
     val app = LocalContext.current.applicationContext as CafeApp
+    val contexto = LocalContext.current
     val factory = remember { CafeViewModelFactory(app) }
     val nav = rememberNavController()
-    val contexto = LocalContext.current
 
     val menuVm: MenuViewModel = viewModel(factory = factory)
     val sesionVm: SesionViewModel = viewModel(factory = factory)
@@ -85,11 +101,24 @@ fun NavCafe() {
     // El ViewModel de pedidos necesita saber quién es el cliente actual
     LaunchedEffect(usuario?.id) { usuario?.let { pedidosClienteVm.setCliente(it.id) } }
 
+    // Repetir pedido: el ViewModel avisa el resultado; aquí se informa y se navega al carrito
+    LaunchedEffect(Unit) {
+        menuVm.repeticion.collect { r ->
+            val texto = when {
+                r.agregados == 0 -> "Ninguno de esos productos está disponible ahora"
+                r.omitidos > 0 -> "Se agregaron ${r.agregados} producto(s). ${r.omitidos} ya no está(n) disponible(s)"
+                else -> "Productos agregados a tu bolsa"
+            }
+            Toast.makeText(contexto, texto, Toast.LENGTH_LONG).show()
+            if (r.agregados > 0) nav.navigate(Rutas.CONFIRMAR)
+        }
+    }
+
     // ---- Barra inferior: solo se muestra en las pestañas principales ----
     val tabsCliente = listOf(
-        ItemTab(Rutas.MENU, "Menú", Icons.Filled.Restaurant),
-        ItemTab(Rutas.MIS_PEDIDOS, "Pedidos", Icons.AutoMirrored.Filled.ReceiptLong),
-        ItemTab(Rutas.PERFIL, "Perfil", Icons.Filled.Person)
+        ItemTab(Rutas.MENU, "Menú", Icons.Outlined.Home, Icons.Filled.Home),
+        ItemTab(Rutas.MIS_PEDIDOS, "Pedidos", Icons.AutoMirrored.Outlined.FormatListBulleted),
+        ItemTab(Rutas.PERFIL, "Perfil", Icons.Outlined.Person, Icons.Filled.Person)
     )
     val tabsAdmin = listOf(
         ItemTab(Rutas.PANEL, "Panel", Icons.Filled.Dashboard),
@@ -121,7 +150,6 @@ fun NavCafe() {
             nav.navigate(Rutas.LOGIN) { popUpTo(nav.graph.id) { inclusive = true } }
         }
     }
-    fun irALogin() { nav.navigate(Rutas.LOGIN) }
 
     /** Cambio de perfil: va al grafo del otro perfil y limpia TODA la pila de navegación. */
     fun cambiarDePerfil(destino: Rol) {
@@ -129,18 +157,37 @@ fun NavCafe() {
         nav.navigate(grafoDe(destino)) { popUpTo(nav.graph.id) { inclusive = true } }
     }
 
+    /** Desde la bienvenida: va al Login sin borrarla de la pila (Atrás vuelve a la bienvenida). */
+    fun irALogin() { nav.navigate(Rutas.LOGIN) }
+
     CafeTheme(rol = rol, oscuro = oscuro) {
         Scaffold(
             bottomBar = {
                 if (tabs.size > 1) {
-                    NavigationBar {
-                        tabs.forEach { t ->
-                            NavigationBarItem(
-                                selected = ruta == t.ruta,
-                                onClick = { irATab(t.ruta, tabs.first().ruta) },
-                                icon = { Icon(t.icono, contentDescription = t.titulo) },
-                                label = { Text(t.titulo) }
-                            )
+                    Column {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        NavigationBar(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                            tonalElevation = 0.dp
+                        ) {
+                            tabs.forEach { t ->
+                                val activa = ruta == t.ruta
+                                NavigationBarItem(
+                                    selected = activa,
+                                    onClick = { irATab(t.ruta, tabs.first().ruta) },
+                                    icon = {
+                                        Icon(if (activa) t.iconoActivo else t.icono, contentDescription = t.titulo)
+                                    },
+                                    label = { Text(t.titulo) },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                                        indicatorColor = Color.Transparent,
+                                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                )
+                            }
                         }
                     }
                 }
@@ -185,7 +232,6 @@ fun NavCafe() {
                         onRegistro = {
                             Toast.makeText(contexto, "El registro estará disponible próximamente", Toast.LENGTH_SHORT).show()
                         }
-
                     )
                 }
 
@@ -194,9 +240,9 @@ fun NavCafe() {
                     composable(Rutas.MENU) {
                         MenuScreen(
                             vm = menuVm,
+                            nombre = usuario?.nombre?.primerNombre().orEmpty(),
                             onProducto = { nav.navigate(Rutas.producto(it)) },
-                            onBolsa = { nav.navigate(Rutas.CONFIRMAR) },
-                            onSalir = { salir() }
+                            onBolsa = { nav.navigate(Rutas.CONFIRMAR) }
                         )
                     }
                     composable(
@@ -235,7 +281,8 @@ fun NavCafe() {
                     composable(Rutas.MIS_PEDIDOS) {
                         MisPedidosScreen(
                             vm = pedidosClienteVm,
-                            onPedido = { nav.navigate(Rutas.seguimiento(it)) }
+                            onPedido = { nav.navigate(Rutas.seguimiento(it)) },
+                            onRepetir = { menuVm.repetirPedido(it.detalles) }
                         )
                     }
                     composable(Rutas.PERFIL) {

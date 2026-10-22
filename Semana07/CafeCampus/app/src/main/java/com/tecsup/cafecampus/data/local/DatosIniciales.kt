@@ -17,11 +17,11 @@ private suspend fun sembrarSiVacia(db: CafeDatabase) {
 }
 
 private fun productosIniciales() = listOf(
-    Producto(nombre = "Café americano", descripcion = "Café filtrado recién hecho", categoria = "Bebidas", precio = 4.00, icono = "cafe"),
-    Producto(nombre = "Sándwich de pollo", descripcion = "Pan artesanal con pollo deshilachado", categoria = "Comidas", precio = 9.00, icono = "pan"),
-    Producto(nombre = "Menú del día", descripcion = "Entrada, segundo y refresco", categoria = "Comidas", precio = 12.00, icono = "plato"),
+    Producto(nombre = "Café americano", descripcion = "Café filtrado recién hecho", categoria = "Desayunos", precio = 4.00, icono = "cafe"),
+    Producto(nombre = "Sándwich de pollo", descripcion = "Pan artesanal con pollo deshilachado", categoria = "Almuerzos", precio = 9.00, icono = "pan"),
+    Producto(nombre = "Menú del día", descripcion = "Entrada, segundo y refresco", categoria = "Almuerzos", precio = 12.00, icono = "plato"),
     Producto(nombre = "Jugo de naranja", descripcion = "Natural, sin azúcar añadida", categoria = "Bebidas", precio = 5.00, icono = "jugo"),
-    Producto(nombre = "Empanada", descripcion = "Horneada, de carne o pollo", categoria = "Snacks", precio = 4.50, icono = "dulce"),
+    Producto(nombre = "Empanada", descripcion = "Horneada, de carne o pollo", categoria = "Desayunos", precio = 4.50, icono = "dulce"),
     Producto(nombre = "Chicha morada", descripcion = "Receta tradicional peruana", categoria = "Bebidas", precio = 3.50, icono = "botella")
 )
 
