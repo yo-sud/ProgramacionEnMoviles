@@ -20,6 +20,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalTime
+import java.util.Locale
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PedidosClienteViewModel(private val repo: CafeRepository) : ViewModel() {
@@ -40,6 +42,7 @@ class PedidosClienteViewModel(private val repo: CafeRepository) : ViewModel() {
         .map { l -> l.filterNot { EstadoPedido.desde(it.pedido.estado).esActivo } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    // Un StateFlow por pedido, reutilizado mientras el ViewModel viva.
     private val seguimientos = mutableMapOf<Int, StateFlow<PedidoConDetalle?>>()
     fun pedido(id: Int): StateFlow<PedidoConDetalle?> = seguimientos.getOrPut(id) {
         repo.observarPedido(id).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
@@ -51,13 +54,28 @@ class PedidosClienteViewModel(private val repo: CafeRepository) : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    // Evento de una sola vez: id del pedido creado (la pantalla navega al Seguimiento).
     private val _creado = Channel<Long>(Channel.BUFFERED)
     val pedidoCreado: Flow<Long> = _creado.receiveAsFlow()
+
+    /**
+     * "Ahora" más los 3 próximos horarios de media hora, con al menos 10 minutos de margen.
+     * Ejemplo: a las 10:05 devuelve [Ahora, 10:30, 11:00, 11:30].
+     */
+    fun opcionesHora(ahora: LocalTime = LocalTime.now()): List<String> {
+        val minutosConMargen = ahora.hour * 60 + ahora.minute + 10
+        val primero = ((minutosConMargen + 29) / 30) * 30
+        val franjas = (0..2)
+            .map { primero + it * 30 }
+            .filter { it < 24 * 60 }
+            .map { String.format(Locale.US, "%02d:%02d", it / 60, it % 60) }
+        return listOf("Ahora") + franjas
+    }
 
     fun confirmar(items: List<ItemCarrito>, horaRecojo: String, pago: String, nota: String) {
         val cid = clienteId.value
         if (cid == null) { _error.value = "No hay una sesión activa"; return }
-        if (_enviando.value) return
+        if (_enviando.value) return // evita pedidos duplicados por doble toque
         _enviando.value = true
         _error.value = null
         viewModelScope.launch {
