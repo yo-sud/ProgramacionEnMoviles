@@ -285,7 +285,8 @@ fun NavCafe() {
                         MisPedidosScreen(
                             vm = pedidosClienteVm,
                             onPedido = { nav.navigate(Rutas.seguimiento(it)) },
-                            onRepetir = { menuVm.repetirPedido(it.detalles) }
+                            onRepetir = { menuVm.repetirPedido(it.detalles) },
+                            onVolver = { irATab(Rutas.MENU, Rutas.MENU) }
                         )
                     }
                     composable(Rutas.PERFIL) {

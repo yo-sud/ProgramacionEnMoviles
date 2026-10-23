@@ -1,6 +1,10 @@
 package com.tecsup.cafecampus.ui
 
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
@@ -9,6 +13,19 @@ fun Double.soles(): String = "S/ " + String.format(Locale.US, "%.2f", this)
 
 /** Millis -> "14/10/2026 12:30" */
 fun Long.fechaHora(): String = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(this))
+
+/** Millis -> "Hoy 10:30", "Ayer 08:40" o "14/10/2026 16:10" para fechas más antiguas. */
+fun Long.fechaRelativa(): String {
+    val zona = ZoneId.systemDefault()
+    val momento = Instant.ofEpochMilli(this).atZone(zona)
+    val hoy = LocalDate.now(zona)
+    val hora = momento.format(DateTimeFormatter.ofPattern("HH:mm"))
+    return when (momento.toLocalDate()) {
+        hoy -> "Hoy $hora"
+        hoy.minusDays(1) -> "Ayer $hora"
+        else -> momento.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+    }
+}
 
 /** "CAJA" -> "Caja", "YAPE" -> "Yape / Plin" */
 fun String.etiquetaPago(): String = if (this == "YAPE") "Yape / Plin" else "Caja"

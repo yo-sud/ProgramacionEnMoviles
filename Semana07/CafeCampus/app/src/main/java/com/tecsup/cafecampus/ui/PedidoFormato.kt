@@ -5,3 +5,11 @@ import com.tecsup.cafecampus.data.local.relation.PedidoConDetalle
 /** "2 × Café americano, 1 × Empanada" */
 fun PedidoConDetalle.resumenLineas(): String =
     detalles.joinToString(", ") { "${it.cantidad} × ${it.nombreProducto}" }
+
+/** "Menú del día x2 + 1 más": primer producto y cuántos más lleva el pedido. */
+fun PedidoConDetalle.resumenCorto(): String {
+    val primero = detalles.firstOrNull() ?: return "Sin productos"
+    val base = "${primero.nombreProducto} x${primero.cantidad}"
+    val resto = detalles.size - 1
+    return if (resto > 0) "$base + $resto más" else base
+}
