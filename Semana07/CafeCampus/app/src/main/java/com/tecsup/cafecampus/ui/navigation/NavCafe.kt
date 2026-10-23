@@ -129,7 +129,8 @@ fun NavCafe() {
     val entrada by nav.currentBackStackEntryAsState()
     val ruta = entrada?.destination?.route
     val tabs = when {
-        tabsCliente.any { it.ruta == ruta } -> tabsCliente
+        // CAMBIO 1: el Seguimiento también muestra la barra del estudiante (como en el diseño)
+        tabsCliente.any { it.ruta == ruta } || ruta == Rutas.SEGUIMIENTO -> tabsCliente
         tabsAdmin.any { it.ruta == ruta } -> tabsAdmin
         else -> emptyList()
     }
@@ -171,7 +172,9 @@ fun NavCafe() {
                             tonalElevation = 0.dp
                         ) {
                             tabs.forEach { t ->
-                                val activa = ruta == t.ruta
+                                // CAMBIO 2: dentro del Seguimiento, la pestaña "Pedidos" aparece activa
+                                val activa = ruta == t.ruta ||
+                                        (ruta == Rutas.SEGUIMIENTO && t.ruta == Rutas.MIS_PEDIDOS)
                                 NavigationBarItem(
                                     selected = activa,
                                     onClick = { irATab(t.ruta, tabs.first().ruta) },

@@ -15,3 +15,10 @@ fun String.etiquetaPago(): String = if (this == "YAPE") "Yape / Plin" else "Caja
 
 /** "Juan Pérez" -> "Juan" */
 fun String.primerNombre(): String = trim().substringBefore(' ')
+
+/** 46 -> "#0046" */
+fun Int.numeroPedido(): String = "#" + String.format(Locale.US, "%04d", this)
+
+/** "10:30" -> "Recojo a las 10:30"; "Ahora" o "Lo antes posible" -> "Recojo lo antes posible" */
+fun String.textoRecojo(): String =
+    if (isBlank() || this == "Ahora" || this == "Lo antes posible") "Recojo lo antes posible" else "Recojo a las $this"
