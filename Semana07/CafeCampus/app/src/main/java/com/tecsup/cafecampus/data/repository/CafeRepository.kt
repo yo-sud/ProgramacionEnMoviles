@@ -5,6 +5,7 @@ import com.tecsup.cafecampus.data.local.entity.Usuario
 import com.tecsup.cafecampus.data.local.relation.PedidoConDetalle
 import com.tecsup.cafecampus.model.EstadoPedido
 import com.tecsup.cafecampus.model.ItemCarrito
+import com.tecsup.cafecampus.model.PedidosPorHora
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -35,4 +36,6 @@ interface CafeRepository {
     // Panel
     fun observarVentasHoy(inicioDia: Long): Flow<Double>
     fun observarCantidadPorEstado(estado: EstadoPedido): Flow<Int>
+
+    fun observarPedidosPorHora(inicioDia: Long): Flow<List<PedidosPorHora>>
 }

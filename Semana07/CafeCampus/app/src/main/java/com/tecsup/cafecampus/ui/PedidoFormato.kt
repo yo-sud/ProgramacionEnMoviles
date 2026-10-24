@@ -13,3 +13,11 @@ fun PedidoConDetalle.resumenCorto(): String {
     val resto = detalles.size - 1
     return if (resto > 0) "$base + $resto más" else base
 }
+
+/** "1 x Sándwich pollo + 1 más": formato del panel del administrador. */
+fun PedidoConDetalle.resumenAdmin(): String {
+    val primero = detalles.firstOrNull() ?: return "Sin productos"
+    val base = "${primero.cantidad} x ${primero.nombreProducto}"
+    val resto = detalles.size - 1
+    return if (resto > 0) "$base + $resto más" else base
+}

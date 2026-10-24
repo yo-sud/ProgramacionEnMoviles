@@ -10,6 +10,7 @@ import com.tecsup.cafecampus.data.local.relation.PedidoConDetalle
 import com.tecsup.cafecampus.model.EstadoPedido
 import com.tecsup.cafecampus.model.ItemCarrito
 import kotlinx.coroutines.flow.Flow
+import com.tecsup.cafecampus.model.PedidosPorHora
 
 /** Implementación local (Room) del contrato CafeRepository. */
 class CafeRepositoryRoom(private val db: CafeDatabase) : CafeRepository {
@@ -72,4 +73,6 @@ class CafeRepositoryRoom(private val db: CafeDatabase) : CafeRepository {
 
     override fun observarCantidadPorEstado(estado: EstadoPedido): Flow<Int> =
         pedidos.cantidadPorEstado(estado.name)
+    override fun observarPedidosPorHora(inicioDia: Long): Flow<List<PedidosPorHora>> =
+        pedidos.pedidosPorHora(inicioDia)
 }

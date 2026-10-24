@@ -8,6 +8,7 @@ import com.tecsup.cafecampus.data.local.entity.DetallePedido
 import com.tecsup.cafecampus.data.local.entity.Pedido
 import com.tecsup.cafecampus.data.local.relation.PedidoConDetalle
 import kotlinx.coroutines.flow.Flow
+import com.tecsup.cafecampus.model.PedidosPorHora
 
 @Dao
 abstract class PedidoDao {
@@ -49,4 +50,16 @@ abstract class PedidoDao {
 
     @Query("SELECT COUNT(*) FROM pedidos WHERE estado = :estado")
     abstract fun cantidadPorEstado(estado: String): Flow<Int>
+
+    @Query(
+        """
+        SELECT CAST(strftime('%H', fecha / 1000, 'unixepoch', 'localtime') AS INTEGER) AS hora,
+               COUNT(*) AS cantidad
+        FROM pedidos
+        WHERE fecha >= :inicio AND estado != 'CANCELADO'
+        GROUP BY hora
+        ORDER BY hora
+        """
+    )
+    abstract fun pedidosPorHora(inicio: Long): Flow<List<PedidosPorHora>>
 }

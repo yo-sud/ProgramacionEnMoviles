@@ -13,6 +13,11 @@ import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.LocalCafe
+import androidx.compose.material.icons.outlined.BarChart
+import androidx.compose.material.icons.outlined.LocalCafe
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -121,10 +126,10 @@ fun NavCafe() {
         ItemTab(Rutas.PERFIL, "Perfil", Icons.Outlined.Person, Icons.Filled.Person)
     )
     val tabsAdmin = listOf(
-        ItemTab(Rutas.PANEL, "Panel", Icons.Filled.Dashboard),
-        ItemTab(Rutas.PEDIDOS_ADMIN, "Pedidos", Icons.AutoMirrored.Filled.ReceiptLong),
-        ItemTab(Rutas.MENU_ADMIN, "Menú", Icons.Filled.Restaurant),
-        ItemTab(Rutas.AJUSTES, "Ajustes", Icons.Filled.Settings)
+        ItemTab(Rutas.PANEL, "Panel", Icons.Outlined.BarChart, Icons.Filled.BarChart),
+        ItemTab(Rutas.PEDIDOS_ADMIN, "Pedidos", Icons.AutoMirrored.Outlined.FormatListBulleted),
+        ItemTab(Rutas.MENU_ADMIN, "Menú", Icons.Outlined.LocalCafe, Icons.Filled.LocalCafe),
+        ItemTab(Rutas.AJUSTES, "Ajustes", Icons.Outlined.Settings, Icons.Filled.Settings)
     )
     val entrada by nav.currentBackStackEntryAsState()
     val ruta = entrada?.destination?.route
@@ -303,8 +308,7 @@ fun NavCafe() {
                     composable(Rutas.PANEL) {
                         PanelScreen(
                             vm = panelVm,
-                            onVerPedidos = { irATab(Rutas.PEDIDOS_ADMIN, Rutas.PANEL) },
-                            onSalir = { salir() }
+                            onVerPedidos = { irATab(Rutas.PEDIDOS_ADMIN, Rutas.PANEL) }
                         )
                     }
                     composable(Rutas.PEDIDOS_ADMIN) {
