@@ -336,7 +336,8 @@ fun NavCafe() {
                         MenuAdminScreen(
                             vm = menuAdminVm,
                             onNuevo = { nav.navigate(Rutas.formulario(0)) },
-                            onEditar = { nav.navigate(Rutas.formulario(it)) }
+                            onEditar = { nav.navigate(Rutas.formulario(it)) },
+                            onVolver = { irATab(Rutas.PANEL, Rutas.PANEL) }
                         )
                     }
                     composable(
