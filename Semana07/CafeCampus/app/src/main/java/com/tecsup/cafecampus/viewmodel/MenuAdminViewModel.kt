@@ -17,18 +17,12 @@ class MenuAdminViewModel(private val repo: CafeRepository) : ViewModel() {
     val productos: StateFlow<List<Producto>> = repo.observarProductos()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    // ---- Filtro por categoría ----
+    // ---- Filtro por categoría (lista del administrador) ----
     private val _categoria = MutableStateFlow<String?>(null)
 
-    /** Primero las categorías de ORDEN_CATEGORIAS, luego el resto alfabéticamente. */
+    /** Categorías que tienen al menos un producto, en el mismo orden que el menú del estudiante. */
     val categorias: StateFlow<List<String>> = productos
-        .map { lista ->
-            lista.map { it.categoria }.distinct().sortedWith(
-                compareBy<String> { cat ->
-                    ORDEN_CATEGORIAS.indexOf(cat).let { i -> if (i >= 0) i else Int.MAX_VALUE }
-                }.thenBy { it }
-            )
-        }
+        .map { lista -> ordenar(lista.map { it.categoria }.distinct()) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     /** Categoría elegida; vuelve a "Todo" (null) si ya no queda ningún producto en ella. */
@@ -42,6 +36,11 @@ class MenuAdminViewModel(private val repo: CafeRepository) : ViewModel() {
 
     fun elegirCategoria(c: String?) { _categoria.value = c }
 
+    /** Opciones del formulario: las categorías base más las que ya existen en el menú. */
+    val categoriasDisponibles: StateFlow<List<String>> = productos
+        .map { lista -> ordenar((CATEGORIAS_BASE + lista.map { it.categoria }).distinct()) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CATEGORIAS_BASE)
+
     /** Nuevo (id = 0) o editado (id existente). */
     fun guardar(p: Producto) { viewModelScope.launch { repo.guardarProducto(p) } }
 
@@ -51,8 +50,15 @@ class MenuAdminViewModel(private val repo: CafeRepository) : ViewModel() {
         viewModelScope.launch { repo.cambiarDisponibilidad(p.id, !p.disponible) }
     }
 
+    /** Primero las categorías de ORDEN_CATEGORIAS, luego el resto alfabéticamente. */
+    private fun ordenar(cats: List<String>): List<String> = cats.sortedWith(
+        compareBy<String> { cat ->
+            ORDEN_CATEGORIAS.indexOf(cat).let { i -> if (i >= 0) i else Int.MAX_VALUE }
+        }.thenBy { it }
+    )
+
     private companion object {
-        /** Orden de los chips: igual que en el menú del estudiante. */
         val ORDEN_CATEGORIAS = listOf("Desayunos", "Almuerzos", "Bebidas")
+        val CATEGORIAS_BASE = listOf("Desayunos", "Almuerzos", "Bebidas", "Snacks")
     }
 }
