@@ -24,6 +24,7 @@ class PreferenciasStore(private val context: Context) {
         val PERFIL = stringPreferencesKey("perfilActivo")
         val OSCURO = booleanPreferencesKey("modoOscuro")
         val RECIBIR = booleanPreferencesKey("recibirPedidos")
+        val NOTIFICACIONES = booleanPreferencesKey("notificaciones")
     }
 
     private val datos: Flow<Preferences> = context.dataStore.data
@@ -33,10 +34,12 @@ class PreferenciasStore(private val context: Context) {
     val perfilActivo: Flow<String> = datos.map { it[Claves.PERFIL] ?: "" }
     val modoOscuro: Flow<Boolean> = datos.map { it[Claves.OSCURO] ?: false }
     val recibirPedidos: Flow<Boolean> = datos.map { it[Claves.RECIBIR] ?: true }
+    val notificaciones: Flow<Boolean> = datos.map { it[Claves.NOTIFICACIONES] ?: true }
 
     // ---- Escritura: funciones suspend ----
     suspend fun guardarPerfil(rol: Rol) { context.dataStore.edit { it[Claves.PERFIL] = rol.name } }
     suspend fun guardarModoOscuro(b: Boolean) { context.dataStore.edit { it[Claves.OSCURO] = b } }
     suspend fun guardarRecibirPedidos(b: Boolean) { context.dataStore.edit { it[Claves.RECIBIR] = b } }
+    suspend fun guardarNotificaciones(b: Boolean) { context.dataStore.edit { it[Claves.NOTIFICACIONES] = b } }
     suspend fun cerrarSesion() { context.dataStore.edit { it[Claves.PERFIL] = "" } }
 }

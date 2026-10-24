@@ -54,8 +54,7 @@ import com.tecsup.cafecampus.ui.theme.EstadoRecibido
 import com.tecsup.cafecampus.viewmodel.PanelAdminViewModel
 
 @Composable
-fun PanelScreen(vm: PanelAdminViewModel, onVerPedidos: () -> Unit) {
-    val nuevos by vm.nuevos.collectAsStateWithLifecycle()
+fun PanelScreen(vm: PanelAdminViewModel, onVerPedidos: () -> Unit, mostrarAvisos: Boolean = true) {    val nuevos by vm.nuevos.collectAsStateWithLifecycle()
     val preparando by vm.preparando.collectAsStateWithLifecycle()
     val listos by vm.listos.collectAsStateWithLifecycle()
     val ventas by vm.ventasHoy.collectAsStateWithLifecycle()
@@ -68,8 +67,7 @@ fun PanelScreen(vm: PanelAdminViewModel, onVerPedidos: () -> Unit) {
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        item { Encabezado(nuevos = nuevos, onCampana = onVerPedidos) }
-
+        item { Encabezado(nuevos = if (mostrarAvisos) nuevos else 0, onCampana = onVerPedidos) }
         item {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Contador(nuevos, "Nuevos", EstadoRecibido, Modifier.weight(1f))

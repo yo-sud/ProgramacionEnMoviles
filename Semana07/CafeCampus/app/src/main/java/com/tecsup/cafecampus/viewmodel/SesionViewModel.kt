@@ -29,6 +29,8 @@ class SesionViewModel(
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
     val recibirPedidos: StateFlow<Boolean> = prefs.recibirPedidos
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+    val notificaciones: StateFlow<Boolean> = prefs.notificaciones
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     init {
         // Si la app se recrea (p. ej. el sistema mató el proceso) se recupera el perfil guardado.
@@ -96,4 +98,6 @@ class SesionViewModel(
     fun setModoOscuro(b: Boolean) { viewModelScope.launch { prefs.guardarModoOscuro(b) } }
 
     fun setRecibirPedidos(b: Boolean) { viewModelScope.launch { prefs.guardarRecibirPedidos(b) } }
+
+    fun setNotificaciones(b: Boolean) { viewModelScope.launch { prefs.guardarNotificaciones(b) } }
 }

@@ -102,6 +102,7 @@ fun NavCafe() {
 
     val usuario by sesionVm.usuarioActual.collectAsStateWithLifecycle()
     val oscuro by sesionVm.modoOscuro.collectAsStateWithLifecycle()
+    val notificaciones by sesionVm.notificaciones.collectAsStateWithLifecycle()
     val rol = usuario?.let { Rol.valueOf(it.rol) } ?: Rol.CLIENTE
 
     // El ViewModel de pedidos necesita saber quién es el cliente actual
@@ -299,7 +300,8 @@ fun NavCafe() {
                         AjustesScreen(
                             vm = sesionVm,
                             onCambioPerfil = { cambiarDePerfil(it) },
-                            onCerrarSesion = { salir() }
+                            onCerrarSesion = { salir() },
+                            onVolver = { irATab(Rutas.MENU, Rutas.MENU) }
                         )
                     }
                 }
@@ -312,7 +314,8 @@ fun NavCafe() {
                             onVerPedidos = {
                                 pedidosAdminVm.seleccionar(EstadoPedido.RECIBIDO) // "Ver todos" y la campana muestran los Nuevos
                                 irATab(Rutas.PEDIDOS_ADMIN, Rutas.PANEL)
-                            }
+                            },
+                            mostrarAvisos = notificaciones
                         )
                     }
                     composable(Rutas.PEDIDOS_ADMIN) {
@@ -354,7 +357,8 @@ fun NavCafe() {
                         AjustesScreen(
                             vm = sesionVm,
                             onCambioPerfil = { cambiarDePerfil(it) },
-                            onCerrarSesion = { salir() }
+                            onCerrarSesion = { salir() },
+                            onVolver = { irATab(Rutas.PANEL, Rutas.PANEL) }
                         )
                     }
                 }
