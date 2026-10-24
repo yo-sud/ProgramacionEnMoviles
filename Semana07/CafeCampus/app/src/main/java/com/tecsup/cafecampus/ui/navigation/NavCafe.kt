@@ -49,6 +49,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.cafecampus.CafeApp
 import com.tecsup.cafecampus.model.Rol
+import com.tecsup.cafecampus.model.EstadoPedido
 import com.tecsup.cafecampus.ui.admin.AjustesScreen
 import com.tecsup.cafecampus.ui.admin.DetallePedidoAdminScreen
 import com.tecsup.cafecampus.ui.admin.FormularioProductoScreen
@@ -308,13 +309,17 @@ fun NavCafe() {
                     composable(Rutas.PANEL) {
                         PanelScreen(
                             vm = panelVm,
-                            onVerPedidos = { irATab(Rutas.PEDIDOS_ADMIN, Rutas.PANEL) }
+                            onVerPedidos = {
+                                pedidosAdminVm.seleccionar(EstadoPedido.RECIBIDO) // "Ver todos" y la campana muestran los Nuevos
+                                irATab(Rutas.PEDIDOS_ADMIN, Rutas.PANEL)
+                            }
                         )
                     }
                     composable(Rutas.PEDIDOS_ADMIN) {
                         PedidosAdminScreen(
                             vm = pedidosAdminVm,
-                            onDetalle = { nav.navigate(Rutas.pedidoAdmin(it)) }
+                            onDetalle = { nav.navigate(Rutas.pedidoAdmin(it)) },
+                            onVolver = { irATab(Rutas.PANEL, Rutas.PANEL) }
                         )
                     }
                     composable(

@@ -52,3 +52,7 @@ fun String.textoRecojo(): String =
 
 /** "10:45" -> "10:45"; "Ahora" o "Lo antes posible" -> "Ahora" */
 fun String.horaCorta(): String = if (isBlank() || this == "Lo antes posible") "Ahora" else this
+
+/** "10:45" -> "Recojo 10:45"; "Ahora" o "Lo antes posible" -> "Recojo ahora" */
+fun String.recojoCorto(): String =
+    if (isBlank() || this == "Ahora" || this == "Lo antes posible") "Recojo ahora" else "Recojo $this"

@@ -21,3 +21,9 @@ fun PedidoConDetalle.resumenAdmin(): String {
     val resto = detalles.size - 1
     return if (resto > 0) "$base + $resto más" else base
 }
+
+/** "1 x Café + 1 x Keke": todos los productos del pedido, para la lista del administrador. */
+fun PedidoConDetalle.resumenCompleto(): String {
+    if (detalles.isEmpty()) return "Sin productos"
+    return detalles.joinToString(" + ") { "${it.cantidad} x ${it.nombreProducto}" }
+}
