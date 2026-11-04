@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "25515986662",
+    "project_id": "authfirebaseapp-cd5c2",
+    "storage_bucket": "authfirebaseapp-cd5c2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:25515986662:android:37d73a8f7b86e2aa09f527",
+        "android_client_info": {
+          "package_name": "com.ochoa.authfirebaseap"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDALrXGvErIHOfGKbz9Cte5WYRcHliOiqk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
