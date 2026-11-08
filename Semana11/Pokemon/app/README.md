@@ -16,6 +16,7 @@ Cerrar sesión	Sí	Sí
 Panel Admin: totales, sincronizar y limpiar caché	No	Sí
 
 Cómo compilar
+
 Clona el repositorio y abre la carpeta del proyecto con Android Studio.
 Coloca tu google-services.json en app/ (ver la sección de Firebase; el archivo no está en el repositorio).
 Haz Sync de Gradle y ejecuta la app en un emulador con Google Play o en un dispositivo.
@@ -25,4 +26,26 @@ Para cambiar la variante, edita TIPO_POKEMON en app/src/main/java/com/tecsup/pok
 APIs usadas (públicas, sin clave):
 
 Lista: https://pokeapi.co/api/v2/type/{tipo}
+
 Detalle: https://pokeapi.co/api/v2/pokemon/{nombre}
+
+Arquitectura (MVVM)
+com.tecsup.pokemon
+
+├── data
+
+│   ├── remote   → ApiService, RetrofitClient, DTO
+
+│   ├── local    → ItemEntity, ItemDao, AppDatabase (Room)
+
+│   ├── auth     → AuthRepository, FirebaseAuthRepository
+
+│   ├── repository → ItemRepository (interface), ItemRepositoryImpl
+
+│   └── mapper   → Dto → Entity → modelo
+
+├── domain/model → Item, Sesion, Rol
+
+├── notification → Notificador (interface), NotificadorAndroid
+
+└── ui           → navegación, UiState y pantallas con su ViewModel
