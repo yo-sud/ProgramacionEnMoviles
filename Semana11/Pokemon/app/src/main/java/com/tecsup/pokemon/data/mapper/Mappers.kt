@@ -29,5 +29,7 @@ fun DetalleDto.aModelo(esFavorito: Boolean) = Item(
     imagenUrl = sprites.frontDefault,
     esFavorito = esFavorito,
     detalle = "Altura: ${height / 10.0} m\nPeso: ${weight / 10.0} kg\n" +
-        "Habilidades: ${abilities.joinToString { it.ability.name }}"
+            "Habilidades: ${abilities.joinToString { it.ability.name }}\n\n" +
+            "Estadísticas base:\n" +
+            stats.joinToString("\n") { "${it.stat.name}: ${it.baseStat}" }
 )

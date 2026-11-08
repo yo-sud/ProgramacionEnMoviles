@@ -17,9 +17,11 @@ data class DetalleDto(
     val weight: Int,
     val sprites: SpritesDto = SpritesDto(),
     val types: List<TipoSlotDto> = emptyList(),
-    val abilities: List<HabilidadSlotDto> = emptyList()
+    val abilities: List<HabilidadSlotDto> = emptyList(),
+    val stats: List<StatSlotDto> = emptyList()
 )
 @Serializable data class SpritesDto(@SerialName("front_default") val frontDefault: String? = null)
 @Serializable data class TipoSlotDto(val type: NombreDto)
 @Serializable data class HabilidadSlotDto(val ability: NombreDto)
+@Serializable data class StatSlotDto(@SerialName("base_stat") val baseStat: Int, val stat: NombreDto)
 @Serializable data class NombreDto(val name: String)
