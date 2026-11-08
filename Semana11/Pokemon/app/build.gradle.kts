@@ -41,6 +41,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.compose.material:material-icons-core")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
