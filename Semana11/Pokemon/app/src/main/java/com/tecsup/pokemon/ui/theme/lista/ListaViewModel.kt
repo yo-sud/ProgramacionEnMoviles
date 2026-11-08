@@ -10,6 +10,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -22,6 +25,16 @@ class ListaViewModel(
     val estado: StateFlow<UiState<List<Item>>> = _estado.asStateFlow()
 
     private val _aviso = MutableStateFlow<String?>(null)
+
+    private val _consulta = MutableStateFlow("")
+    val consulta: StateFlow<String> = _consulta.asStateFlow()
+
+    val visibles: StateFlow<List<Item>> = combine(_estado, _consulta) { estado, texto ->
+        val lista = (estado as? UiState.Exito)?.datos.orEmpty()
+        lista.filter { it.titulo.contains(texto.trim(), ignoreCase = true) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun buscar(texto: String) { _consulta.value = texto }
     val aviso: StateFlow<String?> = _aviso.asStateFlow()
 
     private var refrescoTerminado = false
