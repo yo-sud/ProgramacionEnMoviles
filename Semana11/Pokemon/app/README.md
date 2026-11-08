@@ -15,3 +15,14 @@ Marcar favoritos y ver la pantalla Favoritos	Sí	Sí
 Cerrar sesión	Sí	Sí
 Panel Admin: totales, sincronizar y limpiar caché	No	Sí
 
+Cómo compilar
+Clona el repositorio y abre la carpeta del proyecto con Android Studio.
+Coloca tu google-services.json en app/ (ver la sección de Firebase; el archivo no está en el repositorio).
+Haz Sync de Gradle y ejecuta la app en un emulador con Google Play o en un dispositivo.
+
+Para cambiar la variante, edita TIPO_POKEMON en app/src/main/java/com/tecsup/pokemon/Config.kt 
+
+APIs usadas (públicas, sin clave):
+
+Lista: https://pokeapi.co/api/v2/type/{tipo}
+Detalle: https://pokeapi.co/api/v2/pokemon/{nombre}
