@@ -27,7 +27,7 @@ class LoginViewModel(private val auth: AuthRepository) : ViewModel() {
             _cargando.value = true
             auth.iniciarSesion(correo.trim(), clave)
                 .onSuccess { _sesion.value = it; _error.value = null }
-                .onFailure { _error.value = "Credenciales incorrectas o sin conexión" }
+                .onFailure { _error.value = it.message ?: "No se pudo iniciar sesión" }
             _cargando.value = false
         }
     }
