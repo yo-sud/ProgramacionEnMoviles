@@ -8,6 +8,7 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -32,6 +33,7 @@ fun ListaScreen(
     val aviso by vm.aviso.collectAsStateWithLifecycle()
     val consulta by vm.consulta.collectAsStateWithLifecycle()
     val visibles by vm.visibles.collectAsStateWithLifecycle()
+    val refrescando by vm.refrescando.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -58,20 +60,26 @@ fun ListaScreen(
             when (val s = estado) {
                 UiState.Cargando -> Cargando()
                 is UiState.Error -> ErrorView(s.mensaje, vm::refrescar)
-                is UiState.Exito -> {
-                    OutlinedTextField(
-                        value = consulta,
-                        onValueChange = vm::buscar,
-                        label = { Text("Buscar Pokémon") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp)
-                    )
-                    when {
-                        s.datos.isEmpty() -> Text("No hay elementos", Modifier.padding(16.dp))
-                        visibles.isEmpty() -> Text("Sin resultados", Modifier.padding(16.dp))
-                        else -> LazyColumn {
-                            items(visibles, key = { it.id }) { item ->
-                                ItemFila(item, { onItem(item.id) }, { vm.alternarFavorito(item.id) })
+                is UiState.Exito -> PullToRefreshBox(
+                    isRefreshing = refrescando,
+                    onRefresh = vm::refrescar,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Column(Modifier.fillMaxSize()) {
+                        OutlinedTextField(
+                            value = consulta,
+                            onValueChange = vm::buscar,
+                            label = { Text("Buscar Pokémon") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp)
+                        )
+                        when {
+                            s.datos.isEmpty() -> Text("No hay elementos", Modifier.padding(16.dp))
+                            visibles.isEmpty() -> Text("Sin resultados", Modifier.padding(16.dp))
+                            else -> LazyColumn(Modifier.weight(1f)) {
+                                items(visibles, key = { it.id }) { item ->
+                                    ItemFila(item, { onItem(item.id) }, { vm.alternarFavorito(item.id) })
+                                }
                             }
                         }
                     }

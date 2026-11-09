@@ -7,12 +7,12 @@ import com.tecsup.pokemon.domain.model.Item
 import com.tecsup.pokemon.notification.Notificador
 import com.tecsup.pokemon.ui.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -25,6 +25,10 @@ class ListaViewModel(
     val estado: StateFlow<UiState<List<Item>>> = _estado.asStateFlow()
 
     private val _aviso = MutableStateFlow<String?>(null)
+    val aviso: StateFlow<String?> = _aviso.asStateFlow()
+
+    private val _refrescando = MutableStateFlow(false)
+    val refrescando: StateFlow<Boolean> = _refrescando.asStateFlow()
 
     private val _consulta = MutableStateFlow("")
     val consulta: StateFlow<String> = _consulta.asStateFlow()
@@ -33,9 +37,6 @@ class ListaViewModel(
         val lista = (estado as? UiState.Exito)?.datos.orEmpty()
         lista.filter { it.titulo.contains(texto.trim(), ignoreCase = true) }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    fun buscar(texto: String) { _consulta.value = texto }
-    val aviso: StateFlow<String?> = _aviso.asStateFlow()
 
     private var refrescoTerminado = false
 
@@ -48,8 +49,11 @@ class ListaViewModel(
         refrescar()
     }
 
+    fun buscar(texto: String) { _consulta.value = texto }
+
     fun refrescar() {
         viewModelScope.launch {
+            _refrescando.value = true
             if (repo.cantidadGuardada() == 0) _estado.value = UiState.Cargando
             val resultado = repo.refrescar()
             refrescoTerminado = true
@@ -63,6 +67,7 @@ class ListaViewModel(
                     if (repo.cantidadGuardada() == 0) _estado.value = UiState.Error(mensajeDe(e))
                     else _aviso.value = "Sin conexión: mostrando datos guardados"
                 }
+            _refrescando.value = false
         }
     }
 
