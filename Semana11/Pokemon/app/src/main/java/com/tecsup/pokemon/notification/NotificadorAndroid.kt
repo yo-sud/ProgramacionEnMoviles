@@ -14,13 +14,13 @@ import androidx.core.content.ContextCompat
 import com.tecsup.pokemon.MainActivity
 
 class NotificadorAndroid(private val context: Context) : Notificador {
-    private val canalId = "sync"
+    private val canalId = "sync_silencioso"
 
     init { crearCanal() }
 
     private fun crearCanal() {
         if (Build.VERSION.SDK_INT >= 26) {
-            val canal = NotificationChannel(canalId, "Sincronización", NotificationManager.IMPORTANCE_DEFAULT)
+            val canal = NotificationChannel(canalId, "Sincronización", NotificationManager.IMPORTANCE_LOW)
             context.getSystemService(NotificationManager::class.java).createNotificationChannel(canal)
         }
     }
@@ -42,6 +42,7 @@ class NotificadorAndroid(private val context: Context) : Notificador {
             .setContentText(texto)
             .setContentIntent(pi)
             .setAutoCancel(true)
+            .setSilent(true)
             .build()
         NotificationManagerCompat.from(context).notify(1, n)
     }
