@@ -6,9 +6,9 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
-// TODO Paso 1: lee local.properties (si existe) y úsalo en defaultConfig
 val localProps = Properties().apply {
-    // TODO: cargar rootProject.file("local.properties")
+    val archivo = rootProject.file("local.properties")
+    if (archivo.exists()) archivo.inputStream().use { load(it) }
 }
 
 android {
@@ -21,7 +21,7 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-        // TODO Paso 1: manifestPlaceholders["MAPS_API_KEY"] = ...
+        manifestPlaceholders["MAPS_API_KEY"] = localProps.getProperty("MAPS_API_KEY", "")
     }
 
     buildTypes {
@@ -55,7 +55,6 @@ dependencies {
     implementation("com.google.maps.android:maps-compose:6.4.1")
 }
 
-// Evita que una dependencia arrastre versiones que exijan un SDK/AGP más nuevo
 configurations.all {
     resolutionStrategy {
         force("androidx.core:core:1.15.0", "androidx.core:core-ktx:1.15.0")
