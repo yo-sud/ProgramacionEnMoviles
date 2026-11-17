@@ -13,6 +13,7 @@ import com.google.maps.android.compose.rememberMarkerState
 import com.ochoa.campusgps.model.LugarConDistancia
 import com.ochoa.campusgps.model.UbicacionUi
 import androidx.compose.runtime.key
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 
 @Composable
 fun MapaUbicacion(
@@ -46,6 +47,17 @@ fun MapaUbicacion(
                 )
             }
         }
-        // TODO 3 (Paso 4): un Marker por cada lugar
+        lugares.forEach { item ->
+            key(item.lugar.id) {
+                Marker(
+                    state = rememberMarkerState(
+                        position = LatLng(item.lugar.latitud, item.lugar.longitud)
+                    ),
+                    title = item.lugar.nombre,
+                    snippet = item.lugar.categoria,
+                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
+                )
+            }
+        }
     }
 }
