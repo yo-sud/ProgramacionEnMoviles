@@ -1,13 +1,18 @@
 package com.ochoa.campusgps.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberMarkerState
 import com.ochoa.campusgps.model.LugarConDistancia
 import com.ochoa.campusgps.model.UbicacionUi
+import androidx.compose.runtime.key
 
 @Composable
 fun MapaUbicacion(
@@ -20,10 +25,27 @@ fun MapaUbicacion(
         position = CameraPosition.fromLatLngZoom(LatLng(-12.0464, -77.0428), 12f)
     }
 
-    // TODO 1: LaunchedEffect(estado): si es Lista, animar la cámara (zoom 16f)
+    LaunchedEffect(estado) {
+        if (estado is UbicacionUi.Lista) {
+            camara.animate(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(estado.posicion.latitud, estado.posicion.longitud), 16f
+                )
+            )
+        }
+    }
 
     GoogleMap(modifier = modifier, cameraPositionState = camara) {
-        // TODO 2: si el estado es Lista, un Marker "Estás aquí"
+        if (estado is UbicacionUi.Lista) {
+            key(estado.posicion) {
+                Marker(
+                    state = rememberMarkerState(
+                        position = LatLng(estado.posicion.latitud, estado.posicion.longitud)
+                    ),
+                    title = "Estás aquí"
+                )
+            }
+        }
         // TODO 3 (Paso 4): un Marker por cada lugar
     }
 }

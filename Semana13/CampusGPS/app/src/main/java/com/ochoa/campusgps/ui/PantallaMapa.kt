@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,11 +27,12 @@ import androidx.core.content.ContextCompat
 import com.ochoa.campusgps.model.UbicacionUi
 import com.ochoa.campusgps.viewmodel.MapaViewModel
 
-// TODO Paso 3: agregar MapaUbicacion (weight(1f)) encima del botón
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
+    val lugares by vm.lugares.collectAsState()
+    val seleccionado by vm.seleccionado.collectAsState()
     val contexto = LocalContext.current
 
     val lanzador = rememberLauncherForActivityResult(
@@ -71,10 +73,17 @@ fun PantallaMapa(vm: MapaViewModel) {
         }
     ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
+            modifier = Modifier.fillMaxSize().padding(padding),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            MapaUbicacion(
+                estado = estado,
+                lugares = lugares,
+                seleccionado = seleccionado,
+                modifier = Modifier.weight(1f).fillMaxWidth()
+            )
+
             Button(
                 onClick = { alPulsar() },
                 enabled = estado !is UbicacionUi.Buscando
@@ -87,7 +96,11 @@ fun PantallaMapa(vm: MapaViewModel) {
                     Text("Latitud: ${e.posicion.latitud}")
                     Text("Longitud: ${e.posicion.longitud}")
                 }
-                is UbicacionUi.Error -> Text(e.mensaje, color = MaterialTheme.colorScheme.error)
+                is UbicacionUi.Error -> Text(
+                    e.mensaje,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
             }
         }
     }
