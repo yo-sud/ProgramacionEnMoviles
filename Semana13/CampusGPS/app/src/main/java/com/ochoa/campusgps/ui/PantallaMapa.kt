@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.ochoa.campusgps.model.UbicacionUi
 import com.ochoa.campusgps.viewmodel.MapaViewModel
+import androidx.compose.foundation.layout.height
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,6 +103,12 @@ fun PantallaMapa(vm: MapaViewModel) {
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
+            ListaLugares(
+                lugares = lugares,
+                seleccionado = seleccionado,
+                onClick = { vm.seleccionar(it) },
+                modifier = Modifier.fillMaxWidth().height(220.dp)
+            )
         }
     }
 }
