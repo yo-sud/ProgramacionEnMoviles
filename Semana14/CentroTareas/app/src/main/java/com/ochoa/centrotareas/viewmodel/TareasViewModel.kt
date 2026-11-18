@@ -5,17 +5,17 @@ import androidx.lifecycle.viewModelScope
 import com.ochoa.centrotareas.data.TareasRepository
 import com.ochoa.centrotareas.model.CargaUi
 import com.ochoa.centrotareas.model.PrimosUi
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 
 class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
 
@@ -78,21 +78,35 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     fun cancelarPrimos() {
         trabajoPrimos?.cancel()
     }
+
     // ----- Dos cargas (pasos 6 y 7)
     private val _carga = MutableStateFlow<CargaUi>(CargaUi.Inicial)
     val carga: StateFlow<CargaUi> = _carga.asStateFlow()
+
+    private val _simularError = MutableStateFlow(false)
+    val simularError: StateFlow<Boolean> = _simularError.asStateFlow()
+
+    fun cambiarSimularError(valor: Boolean) {
+        _simularError.value = valor
+    }
 
     fun cargarUnaPorUna() {
         if (_carga.value is CargaUi.Cargando) return
         viewModelScope.launch {
             _carga.value = CargaUi.Cargando
             val inicio = System.currentTimeMillis()
-            val perfil = repo.cargarPerfil()
-            val pedidos = repo.cargarPedidos(false)
-            _carga.value = CargaUi.Exito(
-                "Una por una", perfil, pedidos.size,
-                System.currentTimeMillis() - inicio
-            )
+            try {
+                val perfil = repo.cargarPerfil()
+                val pedidos = repo.cargarPedidos(_simularError.value)
+                _carga.value = CargaUi.Exito(
+                    "Una por una", perfil, pedidos.size,
+                    System.currentTimeMillis() - inicio
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _carga.value = CargaUi.Error("No se pudo cargar: " + e.message)
+            }
         }
     }
 
@@ -101,15 +115,21 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         viewModelScope.launch {
             _carga.value = CargaUi.Cargando
             val inicio = System.currentTimeMillis()
-            val (perfil, pedidos) = coroutineScope {
-                val a = async { repo.cargarPerfil() }
-                val b = async { repo.cargarPedidos(false) }
-                Pair(a.await(), b.await())
+            try {
+                val (perfil, pedidos) = coroutineScope {
+                    val a = async { repo.cargarPerfil() }
+                    val b = async { repo.cargarPedidos(_simularError.value) }
+                    Pair(a.await(), b.await())
+                }
+                _carga.value = CargaUi.Exito(
+                    "A la vez", perfil, pedidos.size,
+                    System.currentTimeMillis() - inicio
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _carga.value = CargaUi.Error("No se pudo cargar: " + e.message)
             }
-            _carga.value = CargaUi.Exito(
-                "A la vez", perfil, pedidos.size,
-                System.currentTimeMillis() - inicio
-            )
         }
-    }    // TODO Paso 7: simularError y manejo de errores
+    }
 }
