@@ -36,6 +36,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import com.ochoa.centrotareas.model.PrimosUi
+import androidx.compose.material3.CircularProgressIndicator
+import com.ochoa.centrotareas.model.CargaUi
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +46,7 @@ fun PantallaTareas(vm: TareasViewModel) {
     val progreso by vm.progreso.collectAsState()
     val corriendo by vm.corriendo.collectAsState()
     val primos by vm.primos.collectAsState()
+    val carga by vm.carga.collectAsState()
     var texto by rememberSaveable { mutableStateOf("500000") }
     var toques by rememberSaveable { mutableIntStateOf(0) }
 
@@ -128,9 +131,33 @@ fun PantallaTareas(vm: TareasViewModel) {
 
             // ----- Tarjeta 3: Dos cargas
             Tarjeta("Dos cargas") {
-                // TODO Paso 6: botones "Una por una" y "A la vez", indicador y resultado
+                val cargando = carga is CargaUi.Cargando
                 // TODO Paso 7: Switch "Simular error", recuadro de error y Reintentar
-                Text("Pendiente (Pasos 6 y 7)")
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(
+                        onClick = { vm.cargarUnaPorUna() },
+                        enabled = !cargando
+                    ) { Text("Una por una") }
+                    Button(
+                        onClick = { vm.cargarALaVez() },
+                        enabled = !cargando
+                    ) { Text("A la vez") }
+                }
+                when (val c = carga) {
+                    CargaUi.Inicial -> {}
+                    CargaUi.Cargando -> CircularProgressIndicator()
+                    is CargaUi.Exito -> Card(
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFDDEFD9)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            "Modo: ${c.modo}\nPerfil: ${c.perfil}\nPedidos: ${c.pedidos}\nTiempo: ${c.milisegundos} ms",
+                            color = Color(0xFF1B5E20),
+                            modifier = Modifier.padding(12.dp)
+                        )
+                    }
+                    is CargaUi.Error -> {} // Paso 7
+                }
             }
         }
     }
