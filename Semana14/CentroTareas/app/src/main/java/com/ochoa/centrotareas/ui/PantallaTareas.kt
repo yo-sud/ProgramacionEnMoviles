@@ -29,6 +29,13 @@ import com.ochoa.centrotareas.viewmodel.TareasViewModel
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
+import com.ochoa.centrotareas.model.PrimosUi
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,6 +43,8 @@ fun PantallaTareas(vm: TareasViewModel) {
     val mensaje by vm.mensaje.collectAsState()
     val progreso by vm.progreso.collectAsState()
     val corriendo by vm.corriendo.collectAsState()
+    val primos by vm.primos.collectAsState()
+    var texto by rememberSaveable { mutableStateOf("500000") }
     var toques by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
@@ -80,8 +89,41 @@ fun PantallaTareas(vm: TareasViewModel) {
 
             // ----- Tarjeta 2: Contar números primos
             Tarjeta("Contar números primos") {
-                // TODO Paso 5: OutlinedTextField, botones Contar y Cancelar, recuadro de resultado
-                Text("Pendiente (Paso 5)")
+                val hasta = texto.toIntOrNull()
+                val calculando = primos is PrimosUi.Calculando
+                OutlinedTextField(
+                    value = texto,
+                    onValueChange = { texto = it.filter { c -> c.isDigit() } },
+                    label = { Text("Hasta el número") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = { hasta?.let { vm.contar(it) } },
+                        enabled = !calculando && hasta != null && hasta >= 2
+                    ) { Text("Contar") }
+                    OutlinedButton(
+                        onClick = { vm.cancelarPrimos() },
+                        enabled = calculando
+                    ) { Text("Cancelar") }
+                }
+                when (val p = primos) {
+                    PrimosUi.Inicial -> {}
+                    PrimosUi.Calculando -> Text("Calculando...")
+                    PrimosUi.Cancelado -> Text("Cancelado")
+                    is PrimosUi.Listo -> Card(
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFDDEFD9)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            "Primos hasta $texto: ${p.cantidad}\nTiempo: ${p.milisegundos} ms",
+                            color = Color(0xFF1B5E20),
+                            modifier = Modifier.padding(12.dp)
+                        )
+                    }
+                }
             }
 
             // ----- Tarjeta 3: Dos cargas
