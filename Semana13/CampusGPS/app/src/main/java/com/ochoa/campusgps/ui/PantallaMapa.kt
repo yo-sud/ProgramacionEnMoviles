@@ -86,6 +86,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 lugares = lugares,
                 seleccionado = seleccionado,
                 masCercano = masCercano,
+                permisoConcedido = estado is UbicacionUi.Lista,
                 modifier = Modifier.weight(1f).fillMaxWidth()
             )
 
@@ -110,11 +111,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 UbicacionUi.Inicial -> Text("Pulsa el botón para empezar")
                 UbicacionUi.Buscando -> Text("Buscando…")
                 is UbicacionUi.Lista -> {}
-                is UbicacionUi.Error -> Text(
-                    e.mensaje,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
+                is UbicacionUi.Error -> MensajeError(e, onReintentar = { alPulsar() })
             }
 
             ListaLugares(

@@ -14,6 +14,8 @@ import com.ochoa.campusgps.model.LugarConDistancia
 import com.ochoa.campusgps.model.UbicacionUi
 import androidx.compose.runtime.key
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
 import com.ochoa.campusgps.model.Lugar
 
 @Composable
@@ -22,6 +24,7 @@ fun MapaUbicacion(
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
     masCercano: Lugar?,
+    permisoConcedido: Boolean,
     modifier: Modifier = Modifier
 ) {
     val camara = rememberCameraPositionState {
@@ -47,7 +50,12 @@ fun MapaUbicacion(
         }
     }
 
-    GoogleMap(modifier = modifier, cameraPositionState = camara) {
+    GoogleMap(
+        modifier = modifier,
+        cameraPositionState = camara,
+        properties = MapProperties(isMyLocationEnabled = permisoConcedido),
+        uiSettings = MapUiSettings(myLocationButtonEnabled = permisoConcedido)
+    ) {
         if (estado is UbicacionUi.Lista) {
             key(estado.posicion) {
                 Marker(
