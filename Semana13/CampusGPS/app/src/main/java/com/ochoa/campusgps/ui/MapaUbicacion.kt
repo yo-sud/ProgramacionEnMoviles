@@ -1,5 +1,6 @@
 package com.ochoa.campusgps.ui
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -13,10 +14,14 @@ import com.google.maps.android.compose.rememberMarkerState
 import com.ochoa.campusgps.model.LugarConDistancia
 import com.ochoa.campusgps.model.UbicacionUi
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.ochoa.campusgps.model.Lugar
+import com.ochoa.campusgps.R
 
 @Composable
 fun MapaUbicacion(
@@ -50,10 +55,19 @@ fun MapaUbicacion(
         }
     }
 
+    val contexto = LocalContext.current
+    val oscuro = isSystemInDarkTheme()
+    val estilo = remember(oscuro) {
+        if (oscuro) MapStyleOptions.loadRawResourceStyle(contexto, R.raw.mapa_oscuro) else null
+    }
+
     GoogleMap(
         modifier = modifier,
         cameraPositionState = camara,
-        properties = MapProperties(isMyLocationEnabled = permisoConcedido),
+        properties = MapProperties(
+            isMyLocationEnabled = permisoConcedido,
+            mapStyleOptions = estilo
+        ),
         uiSettings = MapUiSettings(myLocationButtonEnabled = permisoConcedido)
     ) {
         if (estado is UbicacionUi.Lista) {
