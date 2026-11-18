@@ -2,15 +2,16 @@ package com.ochoa.campusgps.data
 
 import android.annotation.SuppressLint
 import android.content.Context
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.ochoa.campusgps.model.Posicion
 import kotlinx.coroutines.tasks.await
 
-class UbicacionRepositoryGoogle(context: Context) : UbicacionRepository {
-
-    private val cliente = LocationServices.getFusedLocationProviderClient(context)
+class UbicacionRepositoryGoogle(private val contexto: Context) : UbicacionRepository {
+    private val cliente = LocationServices.getFusedLocationProviderClient(contexto)
 
     @SuppressLint("MissingPermission")
     override suspend fun obtenerPosicion(): Result<Posicion> = try {
@@ -27,4 +28,8 @@ class UbicacionRepositoryGoogle(context: Context) : UbicacionRepository {
     } catch (e: Exception) {
         Result.failure(e)
     }
+
+    override fun playServicesDisponible(): Boolean =
+        GoogleApiAvailability.getInstance()
+            .isGooglePlayServicesAvailable(contexto) == ConnectionResult.SUCCESS
 }
