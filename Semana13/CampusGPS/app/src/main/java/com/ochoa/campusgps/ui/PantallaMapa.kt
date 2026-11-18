@@ -29,6 +29,10 @@ import androidx.core.content.ContextCompat
 import com.ochoa.campusgps.model.UbicacionUi
 import com.ochoa.campusgps.util.formatearDistancia
 import com.ochoa.campusgps.viewmodel.MapaViewModel
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.FilterChip
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,6 +42,8 @@ fun PantallaMapa(vm: MapaViewModel) {
     val seleccionado by vm.seleccionado.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
     val contexto = LocalContext.current
+    val filtrados by vm.lugaresFiltrados.collectAsState()
+    val categoria by vm.categoria.collectAsState()
 
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -83,7 +89,7 @@ fun PantallaMapa(vm: MapaViewModel) {
         ) {
             MapaUbicacion(
                 estado = estado,
-                lugares = lugares,
+                lugares = filtrados,
                 seleccionado = seleccionado,
                 masCercano = masCercano,
                 permisoConcedido = estado is UbicacionUi.Lista,
@@ -107,6 +113,19 @@ fun PantallaMapa(vm: MapaViewModel) {
                 }
             }
 
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(vm.categorias) { cat ->
+                    FilterChip(
+                        selected = categoria == cat,
+                        onClick = { vm.filtrarPorCategoria(if (categoria == cat) null else cat) },
+                        label = { Text(cat) }
+                    )
+                }
+            }
+
             when (val e = estado) {
                 UbicacionUi.Inicial -> Text("Pulsa el botón para empezar")
                 UbicacionUi.Buscando -> Text("Buscando…")
@@ -115,7 +134,7 @@ fun PantallaMapa(vm: MapaViewModel) {
             }
 
             ListaLugares(
-                lugares = lugares,
+                lugares = filtrados,
                 seleccionado = seleccionado,
                 onClick = { vm.seleccionar(it) },
                 modifier = Modifier.fillMaxWidth().height(220.dp)
