@@ -12,6 +12,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.ochoa.campusgps.util.distanciaMetros
 import com.ochoa.campusgps.model.Posicion
+import com.ochoa.campusgps.model.Lugar
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+
 
 class MapaViewModel(
     private val ubicacionRepo: UbicacionRepository,
@@ -49,7 +54,9 @@ class MapaViewModel(
         _seleccionado.value = id
     }
 
-    // TODO Paso 7: val masCercano: StateFlow<Lugar?>
+    val masCercano: StateFlow<Lugar?> = lugares
+        .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     private fun mensajeDe(e: Throwable): String = when (e) {
         is SecurityException -> "Falta el permiso de ubicación"

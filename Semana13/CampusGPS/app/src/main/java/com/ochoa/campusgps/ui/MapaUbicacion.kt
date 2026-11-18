@@ -14,12 +14,14 @@ import com.ochoa.campusgps.model.LugarConDistancia
 import com.ochoa.campusgps.model.UbicacionUi
 import androidx.compose.runtime.key
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.ochoa.campusgps.model.Lugar
 
 @Composable
 fun MapaUbicacion(
     estado: UbicacionUi,
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
+    masCercano: Lugar?,
     modifier: Modifier = Modifier
 ) {
     val camara = rememberCameraPositionState {
@@ -68,8 +70,11 @@ fun MapaUbicacion(
                     state = markerState,
                     title = item.lugar.nombre,
                     snippet = item.lugar.categoria,
-                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
-                )
+                    icon = BitmapDescriptorFactory.defaultMarker(
+                        if (item.lugar.id == masCercano?.id) BitmapDescriptorFactory.HUE_GREEN
+                        else BitmapDescriptorFactory.HUE_AZURE
+                    )
+               )
             }
         }
     }

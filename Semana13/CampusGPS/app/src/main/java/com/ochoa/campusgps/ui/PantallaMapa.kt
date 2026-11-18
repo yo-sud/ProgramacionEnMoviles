@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -25,8 +27,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.ochoa.campusgps.model.UbicacionUi
+import com.ochoa.campusgps.util.formatearDistancia
 import com.ochoa.campusgps.viewmodel.MapaViewModel
-import androidx.compose.foundation.layout.height
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +36,7 @@ fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
     val lugares by vm.lugares.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
+    val masCercano by vm.masCercano.collectAsState()
     val contexto = LocalContext.current
 
     val lanzador = rememberLauncherForActivityResult(
@@ -82,6 +85,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 estado = estado,
                 lugares = lugares,
                 seleccionado = seleccionado,
+                masCercano = masCercano,
                 modifier = Modifier.weight(1f).fillMaxWidth()
             )
 
@@ -90,19 +94,29 @@ fun PantallaMapa(vm: MapaViewModel) {
                 enabled = estado !is UbicacionUi.Buscando
             ) { Text("Obtener mi ubicación") }
 
+            OutlinedButton(
+                onClick = { masCercano?.let { vm.seleccionar(it.id) } },
+                enabled = masCercano != null
+            ) { Text("Ir al más cercano") }
+
+            masCercano?.let { lugar ->
+                val metros = lugares.firstOrNull { it.lugar.id == lugar.id }?.metros
+                if (metros != null) {
+                    Text("Más cercano: ${lugar.nombre} (${formatearDistancia(metros)})")
+                }
+            }
+
             when (val e = estado) {
                 UbicacionUi.Inicial -> Text("Pulsa el botón para empezar")
                 UbicacionUi.Buscando -> Text("Buscando…")
-                is UbicacionUi.Lista -> {
-                    Text("Latitud: ${e.posicion.latitud}")
-                    Text("Longitud: ${e.posicion.longitud}")
-                }
+                is UbicacionUi.Lista -> {}
                 is UbicacionUi.Error -> Text(
                     e.mensaje,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
+
             ListaLugares(
                 lugares = lugares,
                 seleccionado = seleccionado,
