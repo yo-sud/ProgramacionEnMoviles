@@ -1,12 +1,12 @@
 package com.ochoa.centrotareas.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ochoa.centrotareas.data.TareasRepository
 import com.ochoa.centrotareas.model.CargaUi
 import com.ochoa.centrotareas.model.PrimosUi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,20 +20,36 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _mensaje = MutableStateFlow("Listo")
     val mensaje: StateFlow<String> = _mensaje.asStateFlow()
 
-    fun tareaLarga() {
-        viewModelScope.launch {
-            _progreso.value = 0f
-            _mensaje.value = "Trabajando..."
-            for (i in 1..100) {
-                withContext(Dispatchers.Default) { delay(40) }
-                _progreso.value = i / 100f
-            }
-            _mensaje.value = "Terminó"
-        }
-    }
     private val _progreso = MutableStateFlow(0f)
     val progreso: StateFlow<Float> = _progreso.asStateFlow()
-    // TODO Paso 4: trabajo (Job), corriendo y cancelar()
+
+    private var trabajo: Job? = null
+
+    private val _corriendo = MutableStateFlow(false)
+    val corriendo: StateFlow<Boolean> = _corriendo.asStateFlow()
+
+    fun tareaLarga() {
+        if (_corriendo.value) return
+        _corriendo.value = true
+        trabajo = viewModelScope.launch {
+            try {
+                _progreso.value = 0f
+                _mensaje.value = "Trabajando..."
+                for (i in 1..100) {
+                    withContext(Dispatchers.Default) { delay(40) }
+                    _progreso.value = i / 100f
+                }
+                _mensaje.value = "Terminó"
+            } finally {
+                _corriendo.value = false
+            }
+        }
+    }
+
+    fun cancelar() {
+        trabajo?.cancel()
+        _mensaje.value = "Cancelado"
+    }
 
     // ----- Contar primos (paso 5)
     private val _primos = MutableStateFlow<PrimosUi>(PrimosUi.Inicial)

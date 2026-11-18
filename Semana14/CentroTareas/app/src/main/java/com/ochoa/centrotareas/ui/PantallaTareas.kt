@@ -27,12 +27,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ochoa.centrotareas.viewmodel.TareasViewModel
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.OutlinedButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaTareas(vm: TareasViewModel) {
     val mensaje by vm.mensaje.collectAsState()
     val progreso by vm.progreso.collectAsState()
+    val corriendo by vm.corriendo.collectAsState()
     var toques by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
@@ -57,8 +60,16 @@ fun PantallaTareas(vm: TareasViewModel) {
             // ----- Tarjeta 1: Tarea con progreso
             Tarjeta("Tarea con progreso") {
                 Button(onClick = { toques++ }) { Text("Tócame: $toques") }
-                Button(onClick = { vm.tareaLarga() }) { Text("Iniciar") }
-                // TODO Paso 4: botón "Cancelar" (OutlinedButton)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = { vm.tareaLarga() },
+                        enabled = !corriendo
+                    ) { Text("Iniciar") }
+                    OutlinedButton(
+                        onClick = { vm.cancelar() },
+                        enabled = corriendo
+                    ) { Text("Cancelar") }
+                }
                 LinearProgressIndicator(
                     progress = { progreso },
                     modifier = Modifier.fillMaxWidth()
