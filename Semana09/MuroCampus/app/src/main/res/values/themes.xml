@@ -1,0 +1,4 @@
+<resources>
+    <!-- La UI usa Compose + Material 3; este tema solo define la ventana. -->
+    <style name="Theme.MuroCampus" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>
