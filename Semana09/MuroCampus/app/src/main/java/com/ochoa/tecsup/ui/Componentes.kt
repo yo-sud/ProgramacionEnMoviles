@@ -33,7 +33,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
-/** Barra superior azul. Con `onAtras` muestra la flecha para volver (pantallas de detalle y crear). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BarraSuperior(titulo: String = "MuroCampus", onAtras: (() -> Unit)? = null) {
@@ -54,10 +53,7 @@ fun BarraSuperior(titulo: String = "MuroCampus", onAtras: (() -> Unit)? = null) 
     )
 }
 
-/**
- * Tarjeta de una publicación: etiqueta "Usuario N", título en negrita y las primeras 2 líneas del texto.
- * Recibe datos simples (no el modelo Post) para no depender de él.
- */
+
 @Composable
 fun TarjetaPost(
     usuario: Int,
@@ -97,7 +93,6 @@ fun TarjetaPost(
     }
 }
 
-/** Indicador de carga con su mensaje (estado Cargando). */
 @Composable
 fun Cargando(mensaje: String = "Cargando publicaciones…", modifier: Modifier = Modifier) {
     Column(
@@ -111,7 +106,6 @@ fun Cargando(mensaje: String = "Cargando publicaciones…", modifier: Modifier =
     }
 }
 
-/** Recuadro de error con su mensaje y el botón Reintentar (estado Error). */
 @Composable
 fun ErrorConReintento(mensaje: String, onReintentar: () -> Unit, modifier: Modifier = Modifier) {
     val colores = MaterialTheme.colorScheme
