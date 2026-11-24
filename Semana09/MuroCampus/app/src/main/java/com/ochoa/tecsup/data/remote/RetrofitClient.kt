@@ -1,26 +1,27 @@
 package com.ochoa.tecsup.data.remote
 
-// ------------------------------------------------------------------------------------------
-// Archivo GUIADO (Paso 4). Está comentado porque Retrofit y OkHttp llegan con el Paso 1,
-// y PostApi la creas tú en el Paso 3.
-//
-// En el Paso 4: descomenta el archivo (Ctrl + /), agrega los imports que pida el IDE y
-// completa los 2 TODO. El TODO 3 va en MainActivity (prueba temporal).
-// ------------------------------------------------------------------------------------------
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
-// object RetrofitClient {
-//     private val json = Json { ignoreUnknownKeys = true }
-//
-//     private val cliente = OkHttpClient.Builder()
-//         // TODO 1: addInterceptor(HttpLoggingInterceptor().apply { level = ... BODY })
-//         .build()
-//
-//     val api: PostApi by lazy {
-//         Retrofit.Builder()
-//             .baseUrl("https://jsonplaceholder.typicode.com/")   // termina con /
-//             .client(cliente)
-//             // TODO 2: addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-//             .build()
-//             .create(PostApi::class.java)
-//     }
-// }
+object RetrofitClient {
+    private val json = Json { ignoreUnknownKeys = true }
+
+    private val cliente = OkHttpClient.Builder()
+        .addInterceptor(HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        })
+        .build()
+
+    val api: PostApi by lazy {
+        Retrofit.Builder()
+            .baseUrl("https://jsonplaceholder.typicode.com/")
+            .client(cliente)
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+            .create(PostApi::class.java)
+    }
+}

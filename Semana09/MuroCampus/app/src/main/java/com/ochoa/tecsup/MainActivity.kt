@@ -14,9 +14,6 @@ import com.ochoa.tecsup.ui.theme.MuroCampusTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // TODO (Paso 4): prueba temporal con lifecycleScope.launch y RetrofitClient.api.listar() (se borra antes del commit)
-
         setContent {
             MuroCampusTheme {
                 Scaffold(topBar = { BarraSuperior() }) { padding ->
