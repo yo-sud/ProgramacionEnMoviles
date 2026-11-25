@@ -8,6 +8,9 @@ import android.os.Build
 import android.Manifest
 import androidx.core.content.ContextCompat
 import android.content.pm.PackageManager
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import com.tecsup.avisoscampus.R
 
 // [G] canal, permiso y mostrar
 object Notificador {
@@ -33,9 +36,17 @@ object Notificador {
 
     // Pasos 3 y 4
     fun mostrar(context: Context, aviso: Aviso): Boolean {
-        // TODO 1: si no tienePermiso(context) -> return false
-        // TODO 2: NotificationCompat.Builder(context, CANAL) + PendingIntent (Paso 4)
-        // TODO 3: NotificationManagerCompat.from(context).notify(aviso.id, ...)
+        if (!tienePermiso(context)) return false
+
+        val notificacion = NotificationCompat.Builder(context, CANAL)
+            .setSmallIcon(R.drawable.ic_notificacion)
+            .setContentTitle(aviso.titulo)
+            .setContentText(aviso.texto)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .build()
+
+        NotificationManagerCompat.from(context).notify(aviso.id, notificacion)
         return true
     }
 }
