@@ -22,13 +22,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import android.content.Intent
+import android.content.IntentFilter
+import androidx.core.content.ContextCompat
 import com.tecsup.avisoscampus.notificacion.Notificador
+import com.tecsup.avisoscampus.receiver.ModoAvionReceiver
 import com.tecsup.avisoscampus.viewmodel.AvisosViewModel
 
 // [G] Las tarjetas ya existen; conecta cada una en su paso
@@ -38,6 +43,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
     val permiso by vm.permiso.collectAsState()
     val faltan by vm.faltan.collectAsState()
+    val escuchandoAvion by vm.escuchandoAvion.collectAsState()
     val lanzadorPermiso = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { concedido -> vm.permisoRespondido(concedido) }
@@ -51,6 +57,18 @@ fun PantallaAvisos(vm: AvisosViewModel) {
             val mostrado = Notificador.mostrar(contexto, aviso)
             // TODO Paso 8: si no se mostró, avisar al ViewModel
         }
+    }
+
+    DisposableEffect(escuchandoAvion) {
+        if (!escuchandoAvion) return@DisposableEffect onDispose { }
+        val receptor = ModoAvionReceiver(vm::alCambiarModoAvion)
+        ContextCompat.registerReceiver(
+            contexto,
+            receptor,
+            IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED),
+            ContextCompat.RECEIVER_EXPORTED
+        )
+        onDispose { contexto.unregisterReceiver(receptor) }
     }
 
     Scaffold(
@@ -102,8 +120,10 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 ) { Text("Cancelar") }
             }
             Tarjeta("Receptor de anuncios") {
-                // TODO Paso 6: DisposableEffect(escuchando) + registro/unregister
-                Switch(checked = false, onCheckedChange = { /* TODO */ })
+                Switch(
+                    checked = escuchandoAvion,
+                    onCheckedChange = { vm.cambiarEscucha(it) }
+                )
                 Text("Escuchar el modo avión")
             }
             Tarjeta("Historial") {
