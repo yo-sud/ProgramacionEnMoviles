@@ -12,7 +12,10 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.coroutines.coroutineContext
 
 // [G] PROHIBIDO aquí: Context, NotificationManager, BroadcastReceiver
 class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
@@ -30,6 +33,10 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
     private val _mensaje = MutableStateFlow<String?>(null)
     val mensaje: StateFlow<String?> = _mensaje.asStateFlow()
 
+    private val _faltan = MutableStateFlow<Int?>(null)
+    val faltan: StateFlow<Int?> = _faltan.asStateFlow()
+    private var trabajoRecordatorio: Job? = null
+
     fun permisoRespondido(concedido: Boolean) {
         _permiso.value = if (concedido) PermisoUi.Concedido else PermisoUi.Denegado
     }
@@ -43,7 +50,36 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
         viewModelScope.launch { _eventos.emit(aviso) }
     }
 
-    // TODO Paso 5: faltan, recordarEn(segundos) y cancelarRecordatorio()
+    fun recordarEn(segundos: Int) {
+        cancelarRecordatorio()
+        trabajoRecordatorio = viewModelScope.launch {
+            try {
+                for (restantes in segundos downTo 1) {
+                    _faltan.value = restantes
+                    delay(1_000)
+                }
+                _faltan.value = null
+                val aviso = repo.registrar(
+                    titulo = "Recordatorio del campus",
+                    texto = "Este es tu aviso programado.",
+                    origen = Origen.RECORDATORIO
+                )
+                _eventos.emit(aviso)
+            } finally {
+                if (trabajoRecordatorio === coroutineContext[Job]) {
+                    _faltan.value = null
+                    trabajoRecordatorio = null
+                }
+            }
+        }
+    }
+
+    fun cancelarRecordatorio() {
+        trabajoRecordatorio?.cancel()
+        trabajoRecordatorio = null
+        _faltan.value = null
+    }
+
     // TODO Paso 6: escuchandoAvion, cambiarEscucha(valor) y alCambiarModoAvion(activo)
     // TODO Paso 8: fun noSePudoMostrar()
 }
