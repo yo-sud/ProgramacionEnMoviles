@@ -13,7 +13,11 @@ import com.ochoa.tecsup.viewmodel.PostsViewModel
 import com.ochoa.tecsup.viewmodel.UiState
 
 @Composable
-fun PantallaLista(vm: PostsViewModel, modifier: Modifier = Modifier) {
+fun PantallaLista(
+    vm: PostsViewModel,
+    onPostClick: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val estado by vm.lista.collectAsStateWithLifecycle()
 
     when (val e = estado) {
@@ -25,7 +29,12 @@ fun PantallaLista(vm: PostsViewModel, modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(e.datos, key = { it.id }) { post ->
-                TarjetaPost(usuario = post.userId, titulo = post.title, texto = post.body)
+                TarjetaPost(
+                    usuario = post.userId,
+                    titulo = post.title,
+                    texto = post.body,
+                    onClick = { onPostClick(post.id) }
+                )
             }
         }
     }

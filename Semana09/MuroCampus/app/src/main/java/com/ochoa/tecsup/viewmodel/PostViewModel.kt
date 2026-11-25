@@ -8,9 +8,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.ochoa.tecsup.model.Comentario
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 class PostsViewModel(private val repo: PostRepository) : ViewModel() {
-
+    data class DetalleUi(val post: Post, val comentarios: List<Comentario>)
     private val _lista = MutableStateFlow<UiState<List<Post>>>(UiState.Cargando)
     val lista: StateFlow<UiState<List<Post>>> = _lista.asStateFlow()
 
@@ -22,6 +25,26 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
             repo.listar()
                 .onSuccess { _lista.value = UiState.Exito(it) }
                 .onFailure { _lista.value = UiState.Error(mensajeDe(it)) }
+        }
+    }
+    private val _detalle = MutableStateFlow<UiState<DetalleUi>>(UiState.Cargando)
+    val detalle: StateFlow<UiState<DetalleUi>> = _detalle.asStateFlow()
+
+    fun abrir(id: Int) {
+        viewModelScope.launch {
+            _detalle.value = UiState.Cargando
+            val (rPost, rComentarios) = coroutineScope {
+                val p = async { repo.detalle(id) }
+                val c = async { repo.comentarios(id) }
+                p.await() to c.await()
+            }
+            val post = rPost.getOrElse {
+                _detalle.value = UiState.Error(mensajeDe(it)); return@launch
+            }
+            val comentarios = rComentarios.getOrElse {
+                _detalle.value = UiState.Error(mensajeDe(it)); return@launch
+            }
+            _detalle.value = UiState.Exito(DetalleUi(post, comentarios))
         }
     }
 }

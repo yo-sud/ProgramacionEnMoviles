@@ -16,6 +16,12 @@ import com.ochoa.tecsup.ui.PantallaLista
 import com.ochoa.tecsup.ui.theme.MuroCampusTheme
 import com.ochoa.tecsup.viewmodel.PostsViewModel
 import com.ochoa.tecsup.viewmodel.PostsViewModelFactory
+import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import com.ochoa.tecsup.ui.PantallaDetalle
 
 class MainActivity : ComponentActivity() {
 
@@ -27,9 +33,22 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MuroCampusTheme {
-                Scaffold(topBar = { BarraSuperior() }) { padding ->
+                var idSeleccionado by rememberSaveable { mutableStateOf<Int?>(null) }
+                BackHandler(enabled = idSeleccionado != null) { idSeleccionado = null }
+
+                Scaffold(topBar = {
+                    BarraSuperior(
+                        titulo = if (idSeleccionado == null) "MuroCampus" else "Publicación",
+                        onAtras = if (idSeleccionado != null) ({ idSeleccionado = null }) else null
+                    )
+                }) { padding ->
                     Box(Modifier.fillMaxSize().padding(padding)) {
-                        PantallaLista(vm)
+                        val id = idSeleccionado
+                        if (id == null) {
+                            PantallaLista(vm, onPostClick = { vm.abrir(it); idSeleccionado = it })
+                        } else {
+                            PantallaDetalle(vm, onReintentar = { vm.abrir(id) })
+                        }
                     }
                 }
             }
