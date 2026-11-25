@@ -42,6 +42,8 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
 
     fun permisoRespondido(concedido: Boolean) {
         _permiso.value = if (concedido) PermisoUi.Concedido else PermisoUi.Denegado
+        _mensaje.value = if (concedido) null else
+            "Permiso de notificaciones denegado. Puedes habilitarlo en Ajustes."
     }
 
     fun avisarAhora() {
@@ -97,5 +99,7 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
         viewModelScope.launch { _eventos.emit(aviso) }
     }
 
-    // TODO Paso 8: fun noSePudoMostrar()
+    fun noSePudoMostrar() {
+        _mensaje.value = "No se pudo mostrar el aviso. Revisa el permiso de notificaciones."
+    }
 }

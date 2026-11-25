@@ -31,6 +31,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
+import android.provider.Settings
 import androidx.core.content.ContextCompat
 import com.tecsup.avisoscampus.notificacion.Notificador
 import com.tecsup.avisoscampus.receiver.ModoAvionReceiver
@@ -45,6 +47,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val faltan by vm.faltan.collectAsState()
     val escuchandoAvion by vm.escuchandoAvion.collectAsState()
     val avisos by vm.avisos.collectAsState()
+    val mensaje by vm.mensaje.collectAsState()
     val lanzadorPermiso = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { concedido -> vm.permisoRespondido(concedido) }
@@ -56,7 +59,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     LaunchedEffect(Unit) {
         vm.eventos.collect { aviso ->
             val mostrado = Notificador.mostrar(contexto, aviso)
-            // TODO Paso 8: si no se mostró, avisar al ViewModel
+            if (!mostrado) vm.noSePudoMostrar()
         }
     }
 
@@ -130,7 +133,18 @@ fun PantallaAvisos(vm: AvisosViewModel) {
             Tarjeta("Historial") {
                 HistorialAvisos(avisos)
             }
-            // TODO Paso 8: recuadro de mensaje (error) + botón "Abrir ajustes"
+            mensaje?.let { texto ->
+                Tarjeta("Permiso de notificaciones") {
+                    Text(texto, color = MaterialTheme.colorScheme.error)
+                    Button(onClick = {
+                        val intent = Intent(
+                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Uri.fromParts("package", contexto.packageName, null)
+                        )
+                        contexto.startActivity(intent)
+                    }) { Text("Abrir ajustes") }
+                }
+            }
         }
     }
 }
