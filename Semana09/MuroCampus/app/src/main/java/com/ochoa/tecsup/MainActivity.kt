@@ -22,6 +22,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.ochoa.tecsup.ui.PantallaDetalle
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import com.ochoa.tecsup.ui.PantallaCrear
 
 class MainActivity : ComponentActivity() {
 
@@ -34,20 +39,43 @@ class MainActivity : ComponentActivity() {
         setContent {
             MuroCampusTheme {
                 var idSeleccionado by rememberSaveable { mutableStateOf<Int?>(null) }
-                BackHandler(enabled = idSeleccionado != null) { idSeleccionado = null }
+                var creando by rememberSaveable { mutableStateOf(false) }
 
-                Scaffold(topBar = {
-                    BarraSuperior(
-                        titulo = if (idSeleccionado == null) "MuroCampus" else "Publicación",
-                        onAtras = if (idSeleccionado != null) ({ idSeleccionado = null }) else null
-                    )
-                }) { padding ->
+                fun volver() {
+                    idSeleccionado = null
+                    if (creando) {
+                        creando = false
+                        vm.limpiarPublicacion()
+                    }
+                }
+
+                BackHandler(enabled = idSeleccionado != null || creando) { volver() }
+
+                Scaffold(
+                    topBar = {
+                        BarraSuperior(
+                            titulo = when {
+                                creando -> "Nueva publicación"
+                                idSeleccionado != null -> "Publicación"
+                                else -> "MuroCampus"
+                            },
+                            onAtras = if (idSeleccionado != null || creando) ({ volver() }) else null
+                        )
+                    },
+                    floatingActionButton = {
+                        if (idSeleccionado == null && !creando) {
+                            FloatingActionButton(onClick = { creando = true }) {
+                                Icon(Icons.Default.Add, contentDescription = "Crear publicación")
+                            }
+                        }
+                    }
+                ) { padding ->
                     Box(Modifier.fillMaxSize().padding(padding)) {
                         val id = idSeleccionado
-                        if (id == null) {
-                            PantallaLista(vm, onPostClick = { vm.abrir(it); idSeleccionado = it })
-                        } else {
-                            PantallaDetalle(vm, onReintentar = { vm.abrir(id) })
+                        when {
+                            creando -> PantallaCrear(vm)
+                            id != null -> PantallaDetalle(vm, onReintentar = { vm.abrir(id) })
+                            else -> PantallaLista(vm, onPostClick = { vm.abrir(it); idSeleccionado = it })
                         }
                     }
                 }

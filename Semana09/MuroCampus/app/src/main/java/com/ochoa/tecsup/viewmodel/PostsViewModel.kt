@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.ochoa.tecsup.model.NuevoPost
 
 data class DetalleUi(val post: Post, val comentarios: List<Comentario>)
 
@@ -66,4 +67,18 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
             _detalle.value = UiState.Exito(DetalleUi(post, comentarios))
         }
     }
+    // ---- Crear ----
+    private val _publicacion = MutableStateFlow<UiState<Post>?>(null) // null = aún no se envió
+    val publicacion: StateFlow<UiState<Post>?> = _publicacion.asStateFlow()
+
+    fun publicar(titulo: String, texto: String) {
+        viewModelScope.launch {
+            _publicacion.value = UiState.Cargando
+            repo.crear(NuevoPost(userId = 1, title = titulo, body = texto))
+                .onSuccess { _publicacion.value = UiState.Exito(it) }
+                .onFailure { _publicacion.value = UiState.Error(mensajeDe(it)) }
+        }
+    }
+
+    fun limpiarPublicacion() { _publicacion.value = null }
 }
