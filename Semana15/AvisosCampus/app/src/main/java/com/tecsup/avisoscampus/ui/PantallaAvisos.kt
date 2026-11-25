@@ -44,6 +44,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val permiso by vm.permiso.collectAsState()
     val faltan by vm.faltan.collectAsState()
     val escuchandoAvion by vm.escuchandoAvion.collectAsState()
+    val avisos by vm.avisos.collectAsState()
     val lanzadorPermiso = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { concedido -> vm.permisoRespondido(concedido) }
@@ -127,8 +128,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 Text("Escuchar el modo avión")
             }
             Tarjeta("Historial") {
-                // TODO Paso 7: HistorialAvisos(avisos)
-                Text("Sin avisos todavía")
+                HistorialAvisos(avisos)
             }
             // TODO Paso 8: recuadro de mensaje (error) + botón "Abrir ajustes"
         }
