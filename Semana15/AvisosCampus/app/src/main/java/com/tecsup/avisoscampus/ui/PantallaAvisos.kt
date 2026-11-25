@@ -1,5 +1,9 @@
 package com.tecsup.avisoscampus.ui
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +23,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -30,6 +36,14 @@ import com.tecsup.avisoscampus.viewmodel.AvisosViewModel
 @Composable
 fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
+    val permiso by vm.permiso.collectAsState()
+    val lanzadorPermiso = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { concedido -> vm.permisoRespondido(concedido) }
+
+    LaunchedEffect(Unit) {
+        if (Notificador.tienePermiso(contexto)) vm.permisoRespondido(true)
+    }
 
     LaunchedEffect(Unit) {
         vm.eventos.collect { aviso ->
@@ -58,9 +72,20 @@ fun PantallaAvisos(vm: AvisosViewModel) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Tarjeta("Permiso de notificaciones") {
-                // TODO Paso 2: lanzador, LaunchedEffect(tienePermiso), etiqueta de estado
-                Text("Sin pedir")
-                Button(onClick = { /* TODO Paso 2 */ }) { Text("Permitir notificaciones") }
+                Text(
+                    when (permiso) {
+                        com.tecsup.avisoscampus.model.PermisoUi.SinPedir -> "Sin pedir"
+                        com.tecsup.avisoscampus.model.PermisoUi.Concedido -> "Concedido"
+                        com.tecsup.avisoscampus.model.PermisoUi.Denegado -> "Denegado"
+                    }
+                )
+                Button(onClick = {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        lanzadorPermiso.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    } else {
+                        vm.permisoRespondido(true)
+                    }
+                }) { Text("Permitir notificaciones") }
             }
             Tarjeta("Avisos") {
                 Button(onClick = { /* TODO Paso 3: vm.avisarAhora() */ }) { Text("Mostrar aviso") }

@@ -5,6 +5,9 @@ import com.tecsup.avisoscampus.model.Aviso
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
+import android.Manifest
+import androidx.core.content.ContextCompat
+import android.content.pm.PackageManager
 
 // [G] canal, permiso y mostrar
 object Notificador {
@@ -21,8 +24,11 @@ object Notificador {
 
     // Paso 2
     fun tienePermiso(context: Context): Boolean {
-        // TODO: si SDK_INT < 33 -> true; si no, ContextCompat.checkSelfPermission(...)
-        return false
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
     }
 
     // Pasos 3 y 4
