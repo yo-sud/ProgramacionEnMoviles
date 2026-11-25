@@ -3,8 +3,8 @@
 
     <!-- TODO Paso 2: <uses-permission android:name="android.permission.POST_NOTIFICATIONS" /> -->
 
-    <!-- TODO Paso 1: agregar android:name=".AvisosApp" en <application> -->
     <application
+        android:name=".AvisosApp"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"

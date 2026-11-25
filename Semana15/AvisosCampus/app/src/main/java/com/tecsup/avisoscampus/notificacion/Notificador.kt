@@ -2,6 +2,9 @@ package com.tecsup.avisoscampus.notificacion
 
 import android.content.Context
 import com.tecsup.avisoscampus.model.Aviso
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
 
 // [G] canal, permiso y mostrar
 object Notificador {
@@ -9,7 +12,11 @@ object Notificador {
 
     // Paso 1
     fun crearCanal(context: Context) {
-        // TODO: si SDK_INT >= O, crear NotificationChannel(CANAL, "Avisos", IMPORTANCE_DEFAULT) y registrarlo
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val canal = NotificationChannel(CANAL, "Avisos", NotificationManager.IMPORTANCE_DEFAULT)
+            context.getSystemService(NotificationManager::class.java)
+                .createNotificationChannel(canal)
+        }
     }
 
     // Paso 2
